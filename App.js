@@ -1,12 +1,10 @@
 import React, { Component } from 'react';
-import { AppRegistry, Text, View } from 'react-native';
+import { TitleBar } from './js/TitleBar';
 
-export default class HelloWorld extends Component {
+export default class App extends Component {
   render() {
-    return (
-      <View>
-        <Text>Hello World!!!!!</Text>
-      </View>
+    return(
+      <TitleBar />
     );
   }
 }
