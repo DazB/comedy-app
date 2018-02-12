@@ -43,10 +43,18 @@ class Handler(asyncore.dispatcher):
 
         # TODO: error handling in case of bad request or receive bad data
         r = requests.get(url, headers=headers)
+        r_json = json.loads(r.text)
 
-        comedy_events = r.text.encode('utf-8')
+        # Parse JSON TODO this shit gonna change gotta make it a database or something
+        events = "["
+        for event in r_json:
+            events += "{headline : " + str(event['headline']) + ", date : " + str(event['startDate']) + "}"
+        events += "]"
+        self.send(json.dumps(events, separators=(',',':')))
 
-        self.send("yo")
+        #comedy_events = r.text.encode('utf-8')
+
+        #self.send(comedy_events)
 
         # ticketmaster_api_key = 'xoGWGgRDOLHGsutqGIk0YLGaNXaYhsAA'
 
