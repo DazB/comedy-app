@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
-import { List, FlatList, Text } from 'react-native';
-import { SocketIOClient } from 'socket.io-client';
+import { View, List, FlatList, Text } from 'react-native';
 
 export class EventData extends Component {
   constructor(props) {
@@ -11,31 +10,21 @@ export class EventData extends Component {
 
   }
 
+
+  // invoked immediately after a component is mounted
   componentDidMount() {
-    // Creating the socket-client instance will automatically connect to the server.
-    const socket = SocketIOClient('http://localhost:8000');
-
-    socket.on('message', (message) => {
-      // React will automatically rerender the component when a new message is added.
-      this.setState({
-        events: message
+    return fetch('http://10.0.1.17:5000/')
+      .then((response) => response.json())
+      .then((responseJson) => {
+        this.setState({
+          events: responseJson,
+        });
+      })
+      .catch((error) => {
+        console.error(error);
       });
-    });
-
-
-    // /* listen to onmessage event */
-    // ws.connection.onmessage = (e) => {
-    //   /* we've receieved a message. Add the new message to state */
-    //   this.setState({
-    //       events : e.data
-    //   });
-    // };
-
-    // var json = fetch('http://localhost');
-    // this.setState({
-    //   events : json
-    // });
   }
+
 
   renderFlatListItem(item) {
       return (
