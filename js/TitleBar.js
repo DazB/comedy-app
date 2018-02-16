@@ -4,19 +4,31 @@ import { StyleSheet, Text, View } from 'react-native';
 export class TitleBar extends Component {
   render() {
     return(
-      <View style={{flex: 1, flexDirection: 'row'}} >
-        <View style={{flex: 1, height: 70, backgroundColor: 'powderblue', justifyContent: 'flex-end'}} >
-            <Text style={styles.bigblue}> teehee </Text>
-        </View>
+      <View style={styles.toolbar}>
+          <Text style={styles.toolbarTitle}>teehee</Text>
+          <Text style={styles.toolbarButton}>Share</Text>
       </View>
     );
   }
 }
 
-const styles = StyleSheet.create({
-  bigblue: {
-    color: 'blue',
-    fontWeight: 'bold',
-    fontSize: 20,
-  },
+var styles = StyleSheet.create({
+    toolbar:{
+        backgroundColor:'cadetblue',
+        paddingTop:30,
+        paddingBottom:10,
+        flexDirection:'row',
+        justifyContent: 'space-between'
+    },
+    toolbarButton:{
+        width: 50,
+        color:'ghostwhite',
+        textAlign:'center'
+    },
+    toolbarTitle:{
+        width: 50,
+        color:'ghostwhite',
+        textAlign:'center',
+        fontWeight:'bold',
+    }
 });
