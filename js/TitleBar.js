@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 
 export class TitleBar extends Component {
   render() {
-    return(
+    return (
       <View style={styles.toolbar}>
           <Text style={styles.toolbarTitle}>teehee</Text>
           <Text style={styles.toolbarButton}>Share</Text>

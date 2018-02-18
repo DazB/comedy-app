@@ -7,7 +7,7 @@ import { EventData } from './js/EventData';
 export default class App extends Component {
   /* render() method is what displays the app */
   render() {
-    return(
+    return (
       <View style={styles.mainContainer}>
         <TitleBar />
         <View style={styles.content}>
