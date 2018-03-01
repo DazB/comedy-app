@@ -1,18 +1,22 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import {
+    StyleSheet,
+    Text,
+    View
+} from 'react-native';
 
 export class TitleBar extends Component {
   render() {
     return (
       <View style={styles.toolbar}>
-          <Text style={styles.toolbarTitle}>teehee</Text>
+          <Text style={styles.toolbarTitle}>Heckler</Text>
           <Text style={styles.toolbarButton}>Share</Text>
       </View>
     );
   }
 }
 
-var styles = StyleSheet.create({
+const styles = StyleSheet.create({
     toolbar:{
         backgroundColor:'cadetblue',
         paddingTop:30,

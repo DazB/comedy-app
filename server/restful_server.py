@@ -1,7 +1,7 @@
-#!flask/bin/python
 from flask import Flask, jsonify
 import requests
 import json
+from collections import defaultdict
 
 app = Flask(__name__)
 
@@ -41,14 +41,24 @@ def get_tasks():
     r = requests.get(url, headers=headers)
     r_json = json.loads(r.text)
 
-    # Parse JSON TODO this shit gonna change gotta make it a database or something
-    events = '['
-    for event in r_json[:-1]:
-        events += '{"headline" : "' + str(event['headline']) + '", "date" : "' + str(event['startDate']) + '"},'
-    events += '{"headline" : "' + str(r_json[-1]['headline']) + '", "date" : "' + str(r_json[-1]['startDate']) + '"}]'
+    # Parse JSON. In this form
+    # {
+    #   "date" : [
+    #       "headline name 1",
+    #       "headline name 2"
+    #       ],
+    #   "date" : [
+    #       ......
+    #       ]
+    # }
+    events = defaultdict(list)
+    for event in r_json:
+        startDate = str(event['startDate'])
+        headline = str(event['headline'])
+        events[startDate].append(headline)
 
-    json_response = json.loads(events)
-    return jsonify(json_response)
+    return jsonify(events)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0')
+    # app.run(host='0.0.0.0')
+    app.run(host='localhost')

@@ -5,6 +5,7 @@ import { EventData } from './js/EventData';
 
 /* Main of the app. This is where the magic happens */
 export default class App extends Component {
+
   /* render() method is what displays the app */
   render() {
     return (
@@ -18,7 +19,7 @@ export default class App extends Component {
   }
 }
 
-var styles = StyleSheet.create({
+const styles = StyleSheet.create({
     mainContainer:{
         flex:1
     },

@@ -1,7 +1,16 @@
 import React, { Component } from 'react';
-import { ActivityIndicator, View, List, FlatList, Text, RefreshControl } from 'react-native';
+import {
+    ActivityIndicator,
+    View,
+    SectionList,
+    ScrollView,
+    Text,
+    RefreshControl,
+    StyleSheet
+} from 'react-native';
 
-var TIMEOUT = 10000; // timeout in ms
+
+const TIMEOUT = 10000; // timeout to fetch data in ms
 
 /*
 Timeout function used for fetching of data
@@ -13,39 +22,41 @@ function timeout(ms, promise) {
   return new Promise(function(resolve, reject) {
     setTimeout(function() {
       reject(new Error("timeout"))
-    }, ms)
+    }, ms);
     promise.then(resolve, reject)
   })
 }
 
+/*
+EventData component displays event data received from server in a list.
+ */
 export class EventData extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      events: '',
-      isLoading: true,
+      events: {},
       error: false,
-      refreshing: false
+      refreshing: true
     }
   }
 
-
-  /* Using the fetch api, we attempt to make a GET requet for event data from
+  /* Using the fetch api, we attempt to make a GET request for event data from
   our server. Use a timeout if shit takes too long */
   fetchData() {
-    return timeout(TIMEOUT, fetch('http://10.0.1.17:5000/'))
+     //return timeout(TIMEOUT, fetch('http://10.0.1.17:5000/')) // server address
+      return timeout(TIMEOUT, fetch('http://10.0.2.2:5000/')) // localhost for android emulator
       .then((response) => response.json())
       .then((responseJson) => {
         this.setState({
           events: responseJson,
-          isLoading: false,
+          refreshing: false,
           error: false,
         });
       })
       .catch((error) => {
         this.setState({
           events: '',
-          isLoading: false,
+          refreshing: false,
           error: true,
         });
       });
@@ -57,25 +68,19 @@ export class EventData extends Component {
   }
 
 
+  // Called when user pulls down on connection error message. Will cause little spinny refresh circle thing to appear
   _onRefresh() {
-    this.setState({refreshing: true});
+    this.setState({
+        refreshing: true});
     this.fetchData().then(() => {
-      this.setState({refreshing: false});
+      this.setState({
+          refreshing: false});
     });
   }
 
-  renderFlatListItem(item) {
-      return (
-  	    <View>
-  		      <Text>{item.headline}</Text>
-            <Text>{item.date}</Text>
-  	    </View>
-      );
-  }
-
   render() {
-    // If fetch command still getting data, show loading shit
-    if (this.state.isLoading) {
+    // If fetch command still getting data, show loading shit (little spinny refresh circle
+    if (this.state.refreshing) {
       return (
         <View style={{paddingTop: 20}}>
           <ActivityIndicator />
@@ -83,30 +88,60 @@ export class EventData extends Component {
       );
     }
 
-    // fetch has had an error of somekind
+    /* fetch has had an error of some kind D:
+    Use ScrollView with refresh shit to show error message */
     if (this.state.error) {
       return (
-        <View>
-            <Text>
-              Whoopsie doopsie. Seems something's wrong with the connection.
-            </Text>
-        </View>
+          <ScrollView
+              refreshControl={
+                  <RefreshControl
+                      refreshing={this.state.refreshing}
+                      onRefresh={this._onRefresh.bind(this)}
+                  />
+              }
+              >
+              <Text style={{fontSize:30}}>
+                  Shit Scott. Connection error. Wait a mo and pull down to refresh
+              </Text>
+          </ScrollView >
       );
     }
 
-    return (
-      /* render the events stored in the state in a FlatList. Also has pull down
-      for refresh shit */
-      <FlatList
-        data={this.state.events}
-        renderItem={({item}) => this.renderFlatListItem(item)}
-        refreshControl={
-          <RefreshControl
-            refreshing={this.state.refreshing}
-            onRefresh={this._onRefresh.bind(this)}
-          />
+    /* We have no error from the fetch :D
+    Go through events JSON we got, and turn that into an array that SectionList can read */
+    let eventsSection = [];
+    for (let key in this.state.events) {
+        // Makes sure we don't loop through metadata
+        if (this.state.events.hasOwnProperty(key)) {
+            eventsSection.push({title: key, data: this.state.events[key]})
         }
-      />
+    }
+
+    return (
+        // Main events list
+        <SectionList
+            sections={eventsSection}
+            renderSectionHeader={ ({section}) => <Text style={styles.SectionHeaderStyle}> { section.title } </Text> }
+            renderItem={ ({item}) => <Text style={styles.SectionListItemStyle} > { item } </Text> }
+            keyExtractor={ (item, index) => index }
+        />
     );
   }
 }
+
+const styles = StyleSheet.create({
+
+    SectionHeaderStyle:{
+        backgroundColor : '#8bdcd6',
+        fontSize : 20,
+        padding: 5,
+        color: '#fff',
+    },
+
+    SectionListItemStyle:{
+        fontSize : 15,
+        padding: 5,
+        color: '#000',
+        backgroundColor : '#F5F5F5'
+    }
+});
