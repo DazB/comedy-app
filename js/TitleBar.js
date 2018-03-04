@@ -5,7 +5,7 @@ import {
     View
 } from 'react-native';
 
-export class TitleBar extends Component {
+export default class TitleBar extends Component {
   render() {
     return (
       <View style={styles.toolbar}>
@@ -30,9 +30,10 @@ const styles = StyleSheet.create({
         textAlign:'center'
     },
     toolbarTitle:{
-        width: 50,
+        width: 60,
         color:'ghostwhite',
         textAlign:'center',
         fontWeight:'bold',
+        paddingLeft: 10
     }
 });

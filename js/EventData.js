@@ -10,7 +10,8 @@ import {
 } from 'react-native';
 
 
-const TIMEOUT = 10000; // timeout to fetch data in ms
+//const TIMEOUT = 10000; // timeout to fetch data in ms
+const TIMEOUT = 1000;
 
 /*
 Timeout function used for fetching of data
@@ -30,7 +31,7 @@ function timeout(ms, promise) {
 /*
 EventData component displays event data received from server in a list.
  */
-export class EventData extends Component {
+export default class EventData extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -100,8 +101,10 @@ export class EventData extends Component {
                   />
               }
               >
-              <Text style={{fontSize:30}}>
-                  Shit Scott. Connection error. Wait a mo and pull down to refresh
+              <Text style={styles.ErrorMessageStyle}>
+                  S'mofo butter layin' me to da' BONE! Jackin' me up... tight me {"\n\n\n"}
+                  Connection error {"\n"}
+                  Wait a mo and pull down to refresh
               </Text>
           </ScrollView >
       );
@@ -143,5 +146,16 @@ const styles = StyleSheet.create({
         padding: 5,
         color: '#000',
         backgroundColor : '#F5F5F5'
+    },
+
+    ErrorMessageStyle:{
+        fontFamily: 'helvetica',
+        fontSize:20,
+        color: '#000',
+        textAlign: 'center',
+        paddingTop: 10,
+        paddingLeft: 20,
+        paddingRight: 20
+
     }
 });
