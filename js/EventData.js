@@ -10,8 +10,7 @@ import {
 } from 'react-native';
 
 
-//const TIMEOUT = 10000; // timeout to fetch data in ms
-const TIMEOUT = 1000;
+const TIMEOUT = 5000; // timeout to fetch data in ms
 
 /*
 Timeout function used for fetching of data
@@ -40,6 +39,8 @@ export default class EventData extends Component {
       refreshing: true
     }
   }
+
+  // TODO: timeout stops data getting to us if it takes a little while, i.e. if it does get sent but just a little late won't refresh
 
   /* Using the fetch api, we attempt to make a GET request for event data from
   our server. Use a timeout if shit takes too long */

@@ -34,7 +34,7 @@ def get_tasks():
     # TODO: format url so custom request using parameters sent by client
     # Send url to ent24 api
     url = 'https://api.ents24.com/event/list?location=geo:53.9576300,-1.0827100&radius_distance=10&' \
-          'distance_unit=mi&genre=comedy&date_from=2018-03-01&date_to=2018-04-25&results_per_page=50&' \
+          'distance_unit=mi&genre=comedy&date_from=2018-03-20&date_to=2018-04-25&results_per_page=50&' \
           'incl_artists=1&full_description=1'
 
     # TODO: error handling in case of bad request or receive bad data
