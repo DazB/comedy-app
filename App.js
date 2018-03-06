@@ -1,12 +1,17 @@
+/*
+The main of our App. What's exported here is what is shown, and everything else is cascaded into that.
+ */
+
 import React, { Component } from 'react';
 import { View, StyleSheet, Text } from 'react-native';
 import HomeScreen from './js/HomeScreen';
 import SettingsScreen from './js/SettingsScreen';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { TabNavigator, TabBarBottom } from 'react-navigation';
+import { TabNavigator, TabBarBottom, StackNavigator } from 'react-navigation';
+import TitleBar from "./js/TitleBar";
 
 class Home extends Component {
-    /* render() method is what displays the app */
+    /* Parameters passed into render is what is displayed */
     render() {
         return (
             <HomeScreen/>
@@ -22,7 +27,8 @@ class Settings extends Component {
     }
 }
 
-export default TabNavigator(
+/* The nice bottom tabs used to navigate between screens */
+const BottomTabs = TabNavigator(
     {
         Home: { screen: HomeScreen },
         Settings: { screen: SettingsScreen },
@@ -33,13 +39,13 @@ export default TabNavigator(
                 const { routeName } = navigation.state;
                 let iconName;
                 if (routeName === 'Home') {
-                    iconName = `ios-microphone${focused ? '' : '-outline'}`;
+                    iconName = `md-microphone`;
+                    //iconName = `ios-microphone${focused ? '' : '-outline'}`;
                 } else if (routeName === 'Settings') {
-                    iconName = `ios-people${focused ? '' : '-outline'}`;
+                    iconName = `md-people`;
+                    //iconName = `ios-people${focused ? '' : '-outline'}`;
                 }
 
-                // You can return any component that you like here! We usually use an
-                // icon component from react-native-vector-icons
                 return <Ionicons name={iconName} size={25} color={tintColor} />;
             },
         }),
@@ -53,3 +59,13 @@ export default TabNavigator(
         swipeEnabled: false,
     }
 );
+
+/* So some funky shit going on here. Basically, we need to embed Tab Navigation (BottomTabs) in a StackNavigator to
+* get the static header on top. Also since this is the root of the App and is exported, this is the thing that gets
+* rendered and shown on screen */
+export default StackNavigator({
+    MyTab: {
+        screen: BottomTabs,
+        navigationOptions: { title: 'Header title' }
+    }
+})
