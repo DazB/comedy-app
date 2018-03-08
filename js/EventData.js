@@ -136,7 +136,7 @@ export default class EventData extends Component {
 const styles = StyleSheet.create({
 
     SectionHeaderStyle:{
-        backgroundColor : '#8bdcd6',
+        backgroundColor : '#00648d',
         fontSize : 20,
         padding: 5,
         color: '#fff',
@@ -154,6 +154,7 @@ const styles = StyleSheet.create({
         fontSize:20,
         color: '#000',
         textAlign: 'center',
+        justifyContent: 'center',
         paddingTop: 10,
         paddingLeft: 20,
         paddingRight: 20

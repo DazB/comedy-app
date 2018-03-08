@@ -3,6 +3,11 @@ import { View, StyleSheet } from 'react-native';
 import EventData from './EventData';
 
 export default class HomeScreen extends Component {
+    /* Title shown on header bar */
+    static navigationOptions = {
+        title: 'Heckler',
+    };
+
     render() {
         return (
             <View style={styles.mainContainer}>
