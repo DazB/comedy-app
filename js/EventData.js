@@ -46,7 +46,7 @@ export default class EventData extends Component {
   our server. Use a timeout if shit takes too long */
   fetchData() {
      //return timeout(TIMEOUT, fetch('http://10.0.1.17:5000/')) // server address
-      return timeout(TIMEOUT, fetch('http://10.0.2.2:5000/')) // localhost for android emulator
+      return timeout(TIMEOUT, fetch('http://10.0.2.2:8080/')) // localhost for android emulator
       .then((response) => response.json())
       .then((responseJson) => {
         this.setState({
@@ -113,11 +113,12 @@ export default class EventData extends Component {
 
     /* We have no error from the fetch :D
     Go through events JSON we got, and turn that into an array that SectionList can read */
-    let eventsSection = [];
-    for (let key in this.state.events) {
+    let eventsSection = []; // This will be shown on screen
+    let events = this.state.events["events"];   // List of events in "events" Object
+    for (let key in events) {
         // Makes sure we don't loop through metadata
-        if (this.state.events.hasOwnProperty(key)) {
-            eventsSection.push({title: key, data: this.state.events[key]})
+        if (events.hasOwnProperty(key)) {
+            eventsSection.push({title: key, data: events[key]})
         }
     }
 
