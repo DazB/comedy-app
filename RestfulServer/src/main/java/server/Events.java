@@ -5,20 +5,19 @@
 package server;
 
 import java.util.List;
-import java.util.Map;
 
 /**
- * Events class. Collection of many events (TODO or will be)
+ * Events class. List of many events
  */
 public class Events {
 
-    private final Map<String, List<String>> events;
+    private final List<Event> events;
 
-    public Events( Map<String, List<String>> events) {
+    public Events(List<Event> events) {
         this.events = events;
     }
 
-    public Map<String, List<String>> getEvents() {
+    public List<Event> getEvents() {
         return events;
     }
 

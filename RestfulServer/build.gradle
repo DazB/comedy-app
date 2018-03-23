@@ -26,7 +26,9 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 dependencies {
-    compile ("com.mashape.unirest:unirest-java:1.4.9")
+    compile("com.mashape.unirest:unirest-java:1.4.9")
+    compile("com.h2database:h2")
+    compile("org.springframework.boot:spring-boot-starter-data-jpa")
     compile("org.springframework.boot:spring-boot-starter-web")
     testCompile('org.springframework.boot:spring-boot-starter-test')
 }
