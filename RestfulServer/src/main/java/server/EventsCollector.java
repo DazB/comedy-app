@@ -16,6 +16,8 @@ import java.util.List;
  */
 public class EventsCollector {
 
+    //Come on daz these shouldnt be on ur public github repo you'll get arrested by the internet police
+    //I dont have a better solution tho
     /* Ent24 Api keys and id */
     private final String client_id = "91fdea0e6e8de74094ad0495f34ba081903e8bea";
     private final String client_secret = "bfd40f1dcb565e9a0e206395c7ae7c6f108cd26a";
@@ -53,6 +55,8 @@ public class EventsCollector {
                 .queryString("full_description", "1")
                 .asJson();
 
+
+        //Move everything here to a new method imo, Seperate the request from your end in case of exceptions
         // Our response from events request
         JSONArray jsonArray = jsonResponse.getBody().getArray();
 
@@ -61,6 +65,7 @@ public class EventsCollector {
 
         /* Parse the events request json we got, extracting data we want
         * TODO this can be done with ObjectMapper, but dunno how to extract specific shit */
+        //Your right you can do this better but when I tried I realise I know nothing about JSON so i have no idea. Im sure theres a java library
         for (int i = 0; i < jsonArray.length(); i++) {
             JSONObject comedyEvent = jsonArray.getJSONObject(i);
             String title = comedyEvent.getString("title");
