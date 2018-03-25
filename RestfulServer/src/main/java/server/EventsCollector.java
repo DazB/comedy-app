@@ -63,7 +63,7 @@ public class EventsCollector {
         * TODO this can be done with ObjectMapper, but dunno how to extract specific shit */
         for (int i = 0; i < jsonArray.length(); i++) {
             JSONObject comedyEvent = jsonArray.getJSONObject(i);
-            String title = comedyEvent.getString("title");
+            String headline = comedyEvent.getString("headline");
 
             // Check if lineup exists, then extract lineup from JSON
             List<String> lineup = new ArrayList<>();
@@ -75,7 +75,7 @@ public class EventsCollector {
                 }
             }
 
-            String startDate = comedyEvent.getString("startDate");
+            String date = comedyEvent.getString("startDate");
 
             // Extract venue name TODO will be its own object
             JSONObject venueJSON = comedyEvent.getJSONObject("venue");
@@ -90,7 +90,7 @@ public class EventsCollector {
                 imageUrl = image.getString("url");
             }
             // Build an event object and add it to our list of events
-            Event event = new Event(title, lineup, startDate, venue, ticketUrl, imageUrl);
+            Event event = new Event(headline, lineup, date, venue, ticketUrl, imageUrl);
             events.add(event);
         }
 

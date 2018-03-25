@@ -9,30 +9,16 @@ import {
     StyleSheet
 } from 'react-native';
 
-
 const TIMEOUT = 5000; // timeout to fetch data in ms
 
-/*
-Timeout function used for fetching of data
-Taken from https://github.com/github/fetch/issues/175#issuecomment-125779262
-Tried to use https://github.com/facebook/react-native/issues/2556 but normal
-fetch kept over riding it, so timout didn't work, so fuck it, this'll do
-*/
-function timeout(ms, promise) {
-  return new Promise(function(resolve, reject) {
-    setTimeout(function() {
-      reject(new Error("timeout"))
-    }, ms);
-    promise.then(resolve, reject)
-  })
-}
-
-/*
-EventData component displays event data received from server in a list.
+/**
+ * EventsList component grabs events data from server and displays in a SectionList.
+ * TODO comoponents should do one thing. need to make a data grabber component higher in the hierachey
  */
-export default class EventData extends Component {
+export default class EventsList extends Component {
   constructor(props) {
     super(props);
+
     this.state = {
       events: {},
       error: false,
@@ -42,8 +28,11 @@ export default class EventData extends Component {
 
   // TODO: timeout stops data getting to us if it takes a little while, i.e. if it does get sent but just a little late won't refresh
 
-  /* Using the fetch api, we attempt to make a GET request for event data from
-  our server. Use a timeout if shit takes too long */
+  /**
+  * Using the fetch api, we attempt to make a GET request for event data from
+  * our server. Use a timeout if shit takes too long
+  * @returns {Promise<T>}
+  */
   fetchData() {
      //return timeout(TIMEOUT, fetch('http://10.0.1.17:5000/')) // server address
       return timeout(TIMEOUT, fetch('http://10.0.2.2:8080/')) // localhost for android emulator
@@ -90,7 +79,7 @@ export default class EventData extends Component {
       );
     }
 
-    /* fetch has had an error of some kind D:
+    /* fetch has had an error of some kind :)
     Use ScrollView with refresh shit to show error message */
     if (this.state.error) {
       return (
@@ -111,27 +100,67 @@ export default class EventData extends Component {
       );
     }
 
-    /* We have no error from the fetch :D
+    /* We have no error from the fetch, so should have data :D
     Go through events JSON we got, and turn that into an array that SectionList can read */
-    let eventsSection = []; // This will be shown on screen
-    let events = this.state.events["events"];   // List of events in "events" Object
-    for (let key in events) {
-        // Makes sure we don't loop through metadata
-        if (events.hasOwnProperty(key)) {
-            eventsSection.push({title: key, data: events[key]})
-        }
-    }
+    let sectionListEvents = parseJSON(this.state.events);
 
     return (
         // Main events list
         <SectionList
-            sections={eventsSection}
+            sections={sectionListEvents}
             renderSectionHeader={ ({section}) => <Text style={styles.SectionHeaderStyle}> { section.title } </Text> }
             renderItem={ ({item}) => <Text style={styles.SectionListItemStyle} > { item } </Text> }
             keyExtractor={ (item, index) => index }
         />
     );
   }
+}
+
+/**
+ * Timeout function used for fetching of data
+ * Taken from https://github.com/github/fetch/issues/175#issuecomment-125779262
+ * Tried to use https://github.com/facebook/react-native/issues/2556 but normal
+ * fetch kept over riding it, so timout didn't work, so fuck it, this'll do
+ * @param ms timeout in milliseconds
+ * @param promise
+ * @returns {Promise<any>}
+ */
+function timeout(ms, promise) {
+    return new Promise(function(resolve, reject) {
+        setTimeout(function() {
+            reject(new Error("timeout"))
+        }, ms);
+        promise.then(resolve, reject)
+    })
+}
+
+
+/**
+ * Goes through json of events data, removing dates and headlines and put them in an array to show on screen
+ * @param json events data
+ * @returns {Array} date as key and array of headlines performing that date as value
+ */
+function parseJSON(json) {
+    let eventsSection = []; // This will be shown on screen
+    let events = json["events"]; // Grab array of every event
+    // Go through every event
+    for (let i = 0; i < events.length; i++) {
+        // If nothings been added, add first event
+        if (eventsSection.length === 0) {
+            eventsSection.push({title: events[i]["date"], data: [events[i]["headline"]]})
+        }
+        else {
+            // Events added chronologically. If this date equals the last one added, add event to that date
+            if (events[i]["date"] === eventsSection[eventsSection.length - 1]["title"]) {
+                eventsSection[eventsSection.length - 1]["data"].push(events[i]["headline"])
+            }
+            // New date. Add it with an array containing the headline
+            else {
+                eventsSection.push({title: events[i]["date"], data: [events[i]["headline"]]})
+            }
+        }
+    }
+    return eventsSection;
 }
 
 const styles = StyleSheet.create({

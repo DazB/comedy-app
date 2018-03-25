@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import { View, StyleSheet } from 'react-native';
-import EventData from './EventData';
+import EventsList from './EventsList';
 
 export default class HomeScreen extends Component {
+
     /* Title shown on header bar */
     static navigationOptions = {
         title: 'Heckler',
@@ -12,7 +13,7 @@ export default class HomeScreen extends Component {
         return (
             <View style={styles.mainContainer}>
                 <View style={styles.content}>
-                    <EventData />
+                    <EventsList />
                 </View>
             </View>
         );

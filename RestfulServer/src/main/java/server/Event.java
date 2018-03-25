@@ -8,32 +8,32 @@ import java.util.List;
  */
 public class Event {
 
-    private String title;
+    private String headline;
     private List<String> lineup;
-    private String startDate;
+    private String date;
     private String venue;   // TODO should be its own object
     private String ticketUrl;   //TODO can be many url's
     private String imageUrl;
 
-    public Event(String title, List<String> lineup, String startDate, String venue, String ticketUrl, String imageUrl) {
-        this.title = title;
+    public Event(String headline, List<String> lineup, String date, String venue, String ticketUrl, String imageUrl) {
+        this.headline = headline;
         this.lineup = lineup;
-        this.startDate = startDate;
+        this.date = date;
         this.venue = venue;
         this.ticketUrl = ticketUrl;
         this.imageUrl = imageUrl;
     }
 
-    public String getTitle() {
-        return title;
+    public String getHeadline() {
+        return headline;
     }
 
     public List<String> getLineup() {
         return lineup;
     }
 
-    public String getStartDate() {
-        return startDate;
+    public String getDate() {
+        return date;
     }
 
     public String getVenue() {

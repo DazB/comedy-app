@@ -9,8 +9,8 @@ import SettingsScreen from './js/SettingsScreen';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { TabNavigator, TabBarBottom, StackNavigator } from 'react-navigation';
 import HeaderButtons from 'react-navigation-header-buttons'
-import TitleBar from "./js/TitleBar";
 
+/* Home screen */
 class Home extends Component {
     /* Parameters passed into render is what is displayed */
     render() {
@@ -20,6 +20,7 @@ class Home extends Component {
     }
 }
 
+/* Settings screen */
 class Settings extends Component {
     render() {
         return (
@@ -72,7 +73,7 @@ export default StackNavigator(
     },
     {
         initialRouteName: 'MyTab',
-        /* The header config from HomeScreen is now here */
+        /* Header config */
         navigationOptions: {
             headerStyle: {
                 backgroundColor: '#4f9eea',
