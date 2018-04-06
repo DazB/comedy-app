@@ -7,6 +7,7 @@
 import thunkMiddleware from 'redux-thunk'
 import {createStore, applyMiddleware} from 'redux'
 import rootReducer from '../reducers/index'
+import { middleware } from '../utils/redux';
 
 export default function configureStore(preloadedState) {
   return createStore(
@@ -14,6 +15,7 @@ export default function configureStore(preloadedState) {
     preloadedState,
     applyMiddleware(
       thunkMiddleware,
+      middleware,
     )
   )
 }

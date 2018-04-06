@@ -13,13 +13,17 @@ import {connect} from 'react-redux'
 import {fetchEventsIfNeeded} from '../actions/index'
 
 /**
- * EventsList component grabs events data from server and displays in a SectionList.
+ * EventsListScreen displays events grabbed from server in a SectionList.
  */
-class EventsList extends Component {
+class EventsListScreen extends Component {
   constructor(props) {
     super(props);
   }
 
+  /* Title shown on header bar */
+  static navigationOptions = {
+    title: 'Heckler',
+  };
 
   // invoked immediately after a component is mounted
   componentDidMount() {
@@ -63,7 +67,7 @@ class EventsList extends Component {
       );
     }
 
-    /* fetch has returned an empty events list and there hasn't been a connection error */
+    /* fetch has returned an empty events list */
     if (!this.props.isFetching && !this.props.error && this.props.events.length === 0) {
       return (
         <ScrollView
@@ -84,14 +88,19 @@ class EventsList extends Component {
     }
 
     /* We have no error from the fetch, so should have data :D
-    This has already been parsed and formatted in the actions */
+    The list of events has already been parsed and formatted in the actions */
 
     return (
-      // Main events list
+      // Main events list. Any events selected will navigate user to EventDetailsScreen, passing with it the event details
       <SectionList
         sections={this.props.events}
         renderSectionHeader={({section}) => <Text style={styles.SectionHeaderStyle}> {section.title} </Text>}
-        renderItem={({item}) => <Text style={styles.SectionListItemStyle}> {item} </Text>}
+        renderItem={({item}) =>
+          <Text style={styles.SectionListItemStyle}
+                onPress={() => this.props.navigation.dispatch({ type: 'EventDetails', event: item })}>
+            {item}
+          </Text>
+        }
         keyExtractor={(item, index) => index}
       />
     );
@@ -113,8 +122,7 @@ function mapStateToProps(state) {
 }
 
 //Connect everything
-export default connect(mapStateToProps)(EventsList)
-
+export default connect(mapStateToProps)(EventsListScreen);
 
 const styles = StyleSheet.create({
 
