@@ -21,24 +21,15 @@ export const RECEIVE_EVENTS = 'RECEIVE_EVENTS';
 /* Receive Events action creator */
 function receiveEvents(json, error) {
   // If there's been an error, return empty object, else return parsed list of events
-  let events = error ? [] : (parseJSON(json));
+  let eventsList = error ? [] : (parseJSON(json));
   return {
     type: RECEIVE_EVENTS,
     receivedAt: Date.now(),
-    events: events,
+    events: json,
+    eventsList: eventsList,
     error: error
   }
 }
-
-export const SELECT_EVENT = 'SELECT_EVENT';
-
-export function selectEvent(event) {
-  return {
-    type: SELECT_EVENT,
-    event
-  }
-}
-
 
 /*
 * Here an action creator can return a function instead of an action object. This way, the action creator becomes a thunk.
@@ -124,23 +115,25 @@ function timeout(ms, promise) {
  * @returns {Array} date as key and array of headlines performing that date as value
  */
 function parseJSON(json) {
-  if (json.length === 0) return [];
+  if (json.length === 0) return []; // If we didn't get any data return an empty list
   let eventsSection = []; // This will be returned and shown on screen
   let events = json["events"]; // Grab array of every event
   // Go through every event
-  for (let i = 0; i < events.length; i++) {
-    // If nothings been added, add first event
-    if (eventsSection.length === 0) {
-      eventsSection.push({title: events[i]["date"], data: [events[i]["headline"]]})
-    }
-    else {
-      // Events added chronologically. If this date equals the last one added, add event to that date
-      if (events[i]["date"] === eventsSection[eventsSection.length - 1]["title"]) {
-        eventsSection[eventsSection.length - 1]["data"].push(events[i]["headline"])
+  for (let event in events) {
+    // Check to make sure we're iterating over right data
+    if (events.hasOwnProperty(event)) {
+      // If nothings been added, add first event
+      if (eventsSection.length === 0) {
+        eventsSection.push({title: events[event]["date"], data: [events[event]["headline"]]})
       }
-      // New date. Add it with an array containing the headline
       else {
-        eventsSection.push({title: events[i]["date"], data: [events[i]["headline"]]})
+        // Events added chronologically. If this date equals the last one added, add event to that date
+        if (events[event]["date"] === eventsSection[eventsSection.length - 1]["title"]) {
+          eventsSection[eventsSection.length - 1]["data"].push(events[event]["headline"])
+        }
+        // New date. Add it with an array containing the headline
+        else
+          eventsSection.push({title: events[event]["date"], data: [events[event]["headline"]]})
       }
     }
   }

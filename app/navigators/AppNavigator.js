@@ -83,7 +83,7 @@ export const AppNavigator = StackNavigator(
 );
 
 /*
-* This is our full app integrated with a navigation prop. Navigation is sent to all components though props and Redux,#
+* This is our full app integrated with a navigation prop. Navigation is sent to all components though props and Redux,
 * so we don't have to explicitly pass it down to every component (in hindsight that might have been easier but fuck it
 * this works
 */

@@ -68,7 +68,7 @@ class EventsListScreen extends Component {
     }
 
     /* fetch has returned an empty events list */
-    if (!this.props.isFetching && !this.props.error && this.props.events.length === 0) {
+    if (!this.props.isFetching && !this.props.error && this.props.eventsList.length === 0) {
       return (
         <ScrollView
           refreshControl={
@@ -93,11 +93,11 @@ class EventsListScreen extends Component {
     return (
       // Main events list. Any events selected will navigate user to EventDetailsScreen, passing with it the event details
       <SectionList
-        sections={this.props.events}
+        sections={this.props.eventsList}
         renderSectionHeader={({section}) => <Text style={styles.SectionHeaderStyle}> {section.title} </Text>}
         renderItem={({item}) =>
           <Text style={styles.SectionListItemStyle}
-                onPress={() => this.props.navigation.dispatch({ type: 'EventDetails', event: item })}>
+                onPress={() => this.props.navigation.dispatch({ type: 'EventDetails', headline: item })}>
             {item}
           </Text>
         }
@@ -114,7 +114,7 @@ class EventsListScreen extends Component {
  */
 function mapStateToProps(state) {
   return {
-    events: state.eventsReducer.events,
+    eventsList: state.eventsReducer.eventsList,
     isFetching: state.eventsReducer.isFetching,
     lastUpdated: state.eventsReducer.lastUpdated,
     error: state.eventsReducer.error

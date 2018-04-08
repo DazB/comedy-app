@@ -6,20 +6,31 @@ import {
   Button
 } from 'react-native';
 
+import {connect} from 'react-redux'
+
 /**
  * EventDetailsScreen displays a single event that was selected in EventsListScreen.
  */
-export default class EventsDetailsScreen extends Component {
+class EventsDetailsScreen extends Component {
   constructor(props) {
     super(props);
   }
+
   render(){
-    // Access the params passed in from EventsDetailsScreen
-    const { params } = this.props.navigation.state;
+    const { params } = this.props.navigation.state;  // Access the params passed in from EventsDetailsScreen
+    let events = this.props.events["events"]; // Get all the events
+    // Find all the details for the event clicked on
+    let event = events.find(function(element) {
+      return element["headline"] === params.headline;
+    });
+
     return (
       <View>
         <Text style={styles.TextStyle}>
-          {params.event}
+          {params.headline}
+          {"\n\n\n"}
+          Venue: {event["venue"]}
+
         </Text>
         <Button
           title="Go back"
@@ -30,6 +41,15 @@ export default class EventsDetailsScreen extends Component {
       )
   }
 }
+
+function mapStateToProps(state) {
+  return {
+    events: state.eventsReducer.events,
+  }
+}
+
+//Connect everything
+export default connect(mapStateToProps)(EventsDetailsScreen);
 
 const styles = StyleSheet.create({
 
@@ -42,6 +62,5 @@ const styles = StyleSheet.create({
     paddingTop: 10,
     paddingLeft: 20,
     paddingRight: 20
-
   }
 });

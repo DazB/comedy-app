@@ -11,7 +11,6 @@ import { AppNavigator } from '../navigators/AppNavigator';
 import {
   REQUEST_EVENTS,
   RECEIVE_EVENTS,
-  SELECT_EVENT
 } from '../actions/index'
 
 /*
@@ -28,7 +27,7 @@ function nav(state = initialNavState, action) {
   switch (action.type) {
     case 'EventDetails':
       nextState = AppNavigator.router.getStateForAction(
-        NavigationActions.navigate({ routeName: 'EventDetails' , params: {event: action.event,}}),
+        NavigationActions.navigate({ routeName: 'EventDetails' , params: {headline: action.headline,}}),
         state
       );
       break;
@@ -46,7 +45,7 @@ function nav(state = initialNavState, action) {
 * These are used to change the state of the app based on calls to the API to request data.
 * The actions make the actual calls
 */
-function eventsReducer(state = { isFetching: false, events: [] }, action) {
+function eventsReducer(state = { isFetching: false, events: [], eventsList: [] }, action) {
   switch (action.type) {
     case REQUEST_EVENTS:
       return Object.assign({}, state, {
@@ -57,6 +56,7 @@ function eventsReducer(state = { isFetching: false, events: [] }, action) {
         isFetching: false,
         lastUpdated: action.receivedAt,
         events: action.events,
+        eventsList: action.eventsList,
         error: action.error
       });
     default:
