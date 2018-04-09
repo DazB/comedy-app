@@ -95,7 +95,8 @@ export function fetchEventsIfNeeded() {
  * Timeout function used for fetching of data
  * Taken from https://github.com/github/fetch/issues/175#issuecomment-125779262
  * Tried to use https://github.com/facebook/react-native/issues/2556 but normal
- * fetch kept over riding it, so timout didn't work, so fuck it, this'll do
+ * fetch kept over riding it, so timeout didn't work, so fuck it, this'll do.
+ * Will ignore if data is received after timeout.
  * @param ms timeout in milliseconds
  * @param promise
  * @returns {Promise<any>}
@@ -110,32 +111,34 @@ function timeout(ms, promise) {
 }
 
 /**
- * Goes through json of events data, extracting dates and headlines and put them in an array to show on screen
+ * Goes through json of events data, extracting dates and headlines and put them in an array to show on screen. We also
+ * put the event id in the array know which event to show details for
  * @param json events data
  * @returns {Array} date as key and array of headlines performing that date as value
  */
 function parseJSON(json) {
   if (json.length === 0) return []; // If we didn't get any data return an empty list
-  let eventsSection = []; // This will be returned and shown on screen
+  let eventsList = []; // This will be returned and shown on screen
   let events = json["events"]; // Grab array of every event
   // Go through every event
   for (let event in events) {
     // Check to make sure we're iterating over right data
     if (events.hasOwnProperty(event)) {
       // If nothings been added, add first event
-      if (eventsSection.length === 0) {
-        eventsSection.push({title: events[event]["date"], data: [events[event]["headline"]]})
+      if (eventsList.length === 0) {
+        eventsList.push({title: events[event]["date"], data: [{id: events[event]["id"], headline: events[event]["headline"]}]})
       }
       else {
         // Events added chronologically. If this date equals the last one added, add event to that date
-        if (events[event]["date"] === eventsSection[eventsSection.length - 1]["title"]) {
-          eventsSection[eventsSection.length - 1]["data"].push(events[event]["headline"])
+        if (events[event]["date"] === eventsList[eventsList.length - 1]["title"]) {
+          eventsList[eventsList.length - 1]["data"].push({id: events[event]["id"], headline: events[event]["headline"]})
         }
         // New date. Add it with an array containing the headline
         else
-          eventsSection.push({title: events[event]["date"], data: [events[event]["headline"]]})
+          eventsList.push({title: events[event]["date"], data: [{id: events[event]["id"], headline: events[event]["headline"]}]})
       }
     }
   }
-  return eventsSection;
+
+  return eventsList;
 }

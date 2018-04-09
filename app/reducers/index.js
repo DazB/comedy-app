@@ -27,7 +27,7 @@ function nav(state = initialNavState, action) {
   switch (action.type) {
     case 'EventDetails':
       nextState = AppNavigator.router.getStateForAction(
-        NavigationActions.navigate({ routeName: 'EventDetails' , params: {headline: action.headline,}}),
+        NavigationActions.navigate({ routeName: 'EventDetails' , params: {headline: action.headline, id: action.id}}),
         state
       );
       break;

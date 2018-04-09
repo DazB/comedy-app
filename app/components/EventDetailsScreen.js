@@ -21,7 +21,7 @@ class EventsDetailsScreen extends Component {
     let events = this.props.events["events"]; // Get all the events
     // Find all the details for the event clicked on
     let event = events.find(function(element) {
-      return element["headline"] === params.headline;
+      return element["id"] === params.id;
     });
 
     return (

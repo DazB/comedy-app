@@ -87,22 +87,46 @@ class EventsListScreen extends Component {
       );
     }
 
-    /* We have no error from the fetch, so should have data :D
+    /* We have no error from the fetch, and we have data :D
     The list of events has already been parsed and formatted in the actions */
-
     return (
-      // Main events list. Any events selected will navigate user to EventDetailsScreen, passing with it the event details
       <SectionList
         sections={this.props.eventsList}
-        renderSectionHeader={({section}) => <Text style={styles.SectionHeaderStyle}> {section.title} </Text>}
-        renderItem={({item}) =>
-          <Text style={styles.SectionListItemStyle}
-                onPress={() => this.props.navigation.dispatch({ type: 'EventDetails', headline: item })}>
-            {item}
-          </Text>
-        }
+        renderSectionHeader={({section}) => {
+          return (<SectionListHeader section={section}/>)
+        }}
+        renderItem={({item, index}) => {
+          return (<SectionListItem item={item} index={index} navigation={this.props.navigation}/>)
+        }}
         keyExtractor={(item, index) => index}
       />
+    );
+  }
+}
+
+/* The title on the list, in this case the date */
+class SectionListHeader extends Component {
+  render() {
+    return (
+      <Text style={styles.SectionHeaderStyle}>
+        {this.props.section.title}
+      </Text>
+    );
+  }
+}
+
+/* The data in the list, in this case all the events on a certain date */
+class SectionListItem extends Component {
+  render() {
+    return (
+      <View>
+        <Text style={styles.SectionListItemStyle}
+              onPress={() => this.props.navigation.dispatch({
+                type: 'EventDetails', headline: this.props.item.headline, id: this.props.item.id})
+              }>
+          {this.props.item.headline}
+        </Text>
+      </View>
     );
   }
 }

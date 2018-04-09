@@ -90,7 +90,7 @@ public class EventsCollector {
                 imageUrl = image.getString("url");
             }
             // Build an event object and add it to our list of events
-            Event event = new Event(headline, lineup, date, venue, ticketUrl, imageUrl);
+            Event event = new Event(i, headline, lineup, date, venue, ticketUrl, imageUrl);
             events.add(event);
         }
 
