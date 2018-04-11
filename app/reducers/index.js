@@ -31,6 +31,12 @@ function nav(state = initialNavState, action) {
         state
       );
       break;
+    case 'EventsList':
+      nextState = AppNavigator.router.getStateForAction(
+        NavigationActions.navigate({ routeName: 'EventsList' , params: {location: action.location}}),
+        state
+      );
+      break;
     default:
       nextState = AppNavigator.router.getStateForAction(action, state);
       break;

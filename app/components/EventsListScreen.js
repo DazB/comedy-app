@@ -1,21 +1,14 @@
 import React, {Component} from 'react';
 import {
-  ActivityIndicator,
-  View,
-  SectionList,
-  ScrollView,
-  Text,
-  RefreshControl,
-  StyleSheet
+  View
 } from 'react-native';
 
-import {connect} from 'react-redux'
-import {fetchEventsIfNeeded} from '../actions/index'
+import EventsList from './EventsList'
 
 /**
- * EventsListScreen displays events grabbed from server in a SectionList.
+ * EventsListScreen displays the EventsList component
  */
-class EventsListScreen extends Component {
+export default class EventsListScreen extends Component {
   constructor(props) {
     super(props);
   }
@@ -25,154 +18,11 @@ class EventsListScreen extends Component {
     title: 'Heckler',
   };
 
-  // invoked immediately after a component is mounted
-  componentDidMount() {
-    this.props.dispatch(fetchEventsIfNeeded());
-  }
-
-
-  // Called when user pulls down on connection error message. Will cause little spinny refresh circle thing to appear
-  _onRefresh() {
-    this.props.dispatch(fetchEventsIfNeeded());
-  }
-
   render() {
-    // If fetch command still getting data, show loading shit (little spinny refresh circle)
-    if (this.props.isFetching) {
-      return (
-        <View style={{paddingTop: 20}}>
-          <ActivityIndicator/>
-        </View>
-      );
-    }
-
-    /* fetch has timed out
-    Use ScrollView with refresh shit to show error message */
-    if (!this.props.isFetching && this.props.error) {
-      return (
-        <ScrollView
-          refreshControl={
-            <RefreshControl
-              refreshing= {false}
-              onRefresh={this._onRefresh.bind(this)}
-            />
-          }
-        >
-          <Text style={styles.ErrorMessageStyle}>
-            S'mofo butter layin' me to da' BONE! Jackin' me up... tight me {"\n\n\n"}
-            Connection error {"\n"}
-            Wait a mo and pull down to refresh
-          </Text>
-        </ScrollView>
-      );
-    }
-
-    /* fetch has returned an empty events list */
-    if (!this.props.isFetching && !this.props.error && this.props.eventsList.length === 0) {
-      return (
-        <ScrollView
-          refreshControl={
-            <RefreshControl
-              refreshing= {false}
-              onRefresh={this._onRefresh.bind(this)}
-            />
-          }
-        >
-          <Text style={styles.ErrorMessageStyle}>
-            Nuffin 'ere m8 {"\n\n\n"}
-            No gigs to list {"\n"}
-            You can pull down to refresh (if you want I dunno I'm not your mum)
-          </Text>
-        </ScrollView>
-      );
-    }
-
-    /* We have no error from the fetch, and we have data :D
-    The list of events has already been parsed and formatted in the actions */
+    /* Simply display the events list */
     return (
-      <SectionList
-        sections={this.props.eventsList}
-        renderSectionHeader={({section}) => {
-          return (<SectionListHeader section={section}/>)
-        }}
-        renderItem={({item, index}) => {
-          return (<SectionListItem item={item} index={index} navigation={this.props.navigation}/>)
-        }}
-        keyExtractor={(item, index) => index}
-      />
+      <EventsList navigation={this.props.navigation}/>
     );
   }
 }
 
-/* The title on the list, in this case the date */
-class SectionListHeader extends Component {
-  render() {
-    return (
-      <Text style={styles.SectionHeaderStyle}>
-        {this.props.section.title}
-      </Text>
-    );
-  }
-}
-
-/* The data in the list, in this case all the events on a certain date */
-class SectionListItem extends Component {
-  render() {
-    return (
-      <View>
-        <Text style={styles.SectionListItemStyle}
-              onPress={() => this.props.navigation.dispatch({
-                type: 'EventDetails', headline: this.props.item.headline, id: this.props.item.id})
-              }>
-          {this.props.item.headline}
-        </Text>
-      </View>
-    );
-  }
-}
-
-/*
-  The function takes data from the app current state,
-  and insert/links it into the props of our component.
-  This function makes Redux know that this component needs to be passed a piece of the state
- */
-function mapStateToProps(state) {
-  return {
-    eventsList: state.eventsReducer.eventsList,
-    isFetching: state.eventsReducer.isFetching,
-    lastUpdated: state.eventsReducer.lastUpdated,
-    error: state.eventsReducer.error
-  }
-}
-
-//Connect everything
-export default connect(mapStateToProps)(EventsListScreen);
-
-const styles = StyleSheet.create({
-
-  SectionHeaderStyle: {
-    backgroundColor: '#00648d',
-    fontSize: 20,
-    padding: 5,
-    color: '#fff',
-  },
-
-  SectionListItemStyle: {
-    fontSize: 15,
-    padding: 5,
-    color: '#000',
-    backgroundColor: '#F5F5F5'
-  },
-
-  ErrorMessageStyle: {
-    fontFamily: 'helvetica',
-    fontSize: 20,
-    color: '#000',
-    textAlign: 'center',
-    justifyContent: 'center',
-    paddingTop: 10,
-    paddingLeft: 20,
-    paddingRight: 20
-
-  }
-});
