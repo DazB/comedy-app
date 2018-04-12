@@ -36,29 +36,28 @@ function receiveEvents(json, error) {
 * When an action returns a thunk, it's executed by Redux middleware (redux-thunk). Doesn't need to be pure, so can have
 * side effects, e.g. API calls.
 */
-function fetchEvents() {
-  // Thunk middleware knows how to handle functions.
-  // It passes the dispatch method as an argument to the function,
+function fetchEvents(geoLocation) {
+  // localhost for android emulator
+  let ipAddress = 'http://10.0.2.2:8080/'; // Server ip address. Other ip => 'http://10.0.1.17:5000/'
+
+  if (typeof geoLocation !== 'undefined') { // Check if we've been passed a geo coordinate location
+    ipAddress += 'events?location=' + geoLocation.lat +',' + geoLocation.lng; // Append it to the end of our API call
+  }
+
+  // Thunk middleware passes the dispatch method as an argument to the function,
   // thus making it able to dispatch actions itself.
-
   return function (dispatch) {
-    // First dispatch: the app state is updated to inform
-    // that the API call is starting.
-
+    // First dispatch: the app state is updated to inform that the API call is starting.
     dispatch(requestEvents());
 
     // The function called by the thunk middleware can return a value,
     // that is passed on as the return value of the dispatch method.
 
-    //return timeout(TIMEOUT, fetch('http://10.0.1.17:5000/')) // server address
-    return timeout(TIMEOUT, fetch('http://10.0.2.2:8080/')) // localhost for android emulator
-      /* first parameter of .then() is function if promise is accepted, second is function if it's rejected.
-      * So here, if we get a response, use arrow function to get json. */
+    return timeout(TIMEOUT, fetch(ipAddress))
       .then(response => response.json())
-      /* Then after, on success, dispatch the json we received, the update the app state with the results of the API call
-      We also say there has not been an error. Go fucking dammit i hate javascript*/
+      /* On success the update the app state with the results of the API call and say no errors */
       .then(json => dispatch(receiveEvents(json, false)))
-      // On a timeout return an undefined list of events
+      // On a timeout return an undefined list of events and say there's been an error
       .catch(error => dispatch(receiveEvents({}, true)))
   }
 }
@@ -73,7 +72,7 @@ function shouldFetchEvents(state) {
   }
 }
 
-export function fetchEventsIfNeeded() {
+export function fetchEventsIfNeeded(geoLocation) {
   // Note that the function also receives getState()
   // which lets you choose what to dispatch next.
 
@@ -83,7 +82,7 @@ export function fetchEventsIfNeeded() {
   return (dispatch, getState) => {
     if (shouldFetchEvents(getState())) {
       // Dispatch a thunk from thunk!
-      return dispatch(fetchEvents())
+      return dispatch(fetchEvents(geoLocation))
     } else {
       // Let the calling code know there's nothing to wait for.
       return Promise.resolve()

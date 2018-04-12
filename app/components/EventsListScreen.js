@@ -21,7 +21,7 @@ export default class EventsListScreen extends Component {
   render() {
     /* Simply display the events list */
     return (
-      <EventsList navigation={this.props.navigation}/>
+      <EventsList navigation={this.props.navigation} location={}/>
     );
   }
 }

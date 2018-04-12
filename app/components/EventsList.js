@@ -20,17 +20,18 @@ class EventsList extends Component {
     super(props);
   }
 
-  // invoked immediately after a component is mounted
+  // invoked immediately after a component is mounted. Fetch events from specific location (if defined)
   componentDidMount() {
-    this.props.dispatch(fetchEventsIfNeeded());
+    this.props.dispatch(fetchEventsIfNeeded(this.props.location));
   }
 
   // Called when user pulls down on connection error message. Will cause little spinny refresh circle thing to appear
   _onRefresh() {
-    this.props.dispatch(fetchEventsIfNeeded());
+    this.props.dispatch(fetchEventsIfNeeded(this.props.location));
   }
 
   render() {
+    console.log(this.props.location);
     // If fetch command still getting data, show loading shit (little spinny refresh circle)
     if (this.props.isFetching) {
       return (

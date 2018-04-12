@@ -2,8 +2,8 @@ package server;
 
 import com.mashape.unirest.http.exceptions.UnirestException;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
 
 /**
  * RESTful web service controller EventsController simply populates and returns an Events object.
@@ -13,16 +13,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class EventsController {
 
+
     /**
-     * Handles request. So far all of them.
-     * To test, run application and open browser to localhost:8080, and you'll get yourself a nice JSON response
+     * Handles events requests.
+     * @param location The geolocation query string. Defaults to York <3
      * @return Events object (this will be written directly into JSON and sent as a response to HTTP requests)
      * @throws UnirestException Throws exception on bad request to ticket website (I think...)
      */
-    @RequestMapping
-    public Events sendEvents() throws UnirestException {
+    @RequestMapping("/events")
+    public Events sendEvents(@RequestParam(value="location", defaultValue="geo:53.9576300,-1.0827100") String location) throws UnirestException {
 
-        EventsCollector collector = new EventsCollector();
+        EventsCollector collector = new EventsCollector(location);
 
         return new Events(collector.getEnts24Events());
     }

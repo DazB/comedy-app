@@ -1,10 +1,10 @@
 import React, {Component} from 'react';
-import {View, Text, StyleSheet, Image} from 'react-native';
+import {View, StyleSheet, TouchableHighlight} from 'react-native';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import HeaderButtons from 'react-navigation-header-buttons'
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-export default class LocationsScreen extends Component {
+export default class LocationSearchScreen extends Component {
 
   /* Title shown on header bar */
   static navigationOptions = {
@@ -24,15 +24,16 @@ class GooglePlacesInput extends Component {
   render() {
     return (
       <GooglePlacesAutocomplete
-        placeholder='Search'
+        placeholder='Search for funny places'
         minLength={2} // minimum length of text to search
         autoFocus={false}
         returnKeyType={'search'} // Search icon, https://facebook.github.io/react-native/docs/textinput.html#returnkeytype
         listViewDisplayed='auto'    // true/false/undefined
+        fetchDetails={true}
         renderDescription={row => row.description} // custom description render
-        onPress={(data = null) => { // 'details' is provided when fetchDetails = true
+        onPress={(data, details) => { // 'details' is provided when fetchDetails = true
           this.props.navigation.dispatch({
-            type: 'EventsList', location: data.description
+            type: 'LocationEvents', placeName: data.description, location: details.geometry.location,
           })
         }}
 

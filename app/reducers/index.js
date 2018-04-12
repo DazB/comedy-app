@@ -31,9 +31,9 @@ function nav(state = initialNavState, action) {
         state
       );
       break;
-    case 'EventsList':
+    case 'LocationEvents':
       nextState = AppNavigator.router.getStateForAction(
-        NavigationActions.navigate({ routeName: 'EventsList' , params: {location: action.location}}),
+        NavigationActions.navigate({ routeName: 'LocationEvents' , params: {placeName: action.placeName, location: action.location}}),
         state
       );
       break;

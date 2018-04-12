@@ -16,11 +16,17 @@ import java.util.List;
  */
 public class EventsCollector {
 
+    private String location;
+
     /* Ent24 Api keys and id */
     private final String client_id = "91fdea0e6e8de74094ad0495f34ba081903e8bea";
     private final String client_secret = "bfd40f1dcb565e9a0e206395c7ae7c6f108cd26a";
     private final String username = "dazbahri@hotmail.co.uk";
     private final String password = "ShitPissFuckCunt";
+
+    public EventsCollector(String location) {
+        this.location = location;
+    }
 
     /**
      * Makes a request to Ents24 API, gets comedy events JSON, parses it, and returns the events
@@ -42,7 +48,7 @@ public class EventsCollector {
         // Build HTTP events request
         HttpResponse<JsonNode> jsonResponse = Unirest.get("https://api.ents24.com/event/list")
                 .header("Authorization", auth)
-                .queryString("location", "geo:53.9576300,-1.0827100")
+                .queryString("location", "geo:" + location) // Location query string parameter
                 .queryString("radius_distance", "10")
                 .queryString("distance_unit", "mi")
                 .queryString("genre", "comedy")

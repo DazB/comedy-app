@@ -5,9 +5,10 @@ import HeaderButtons from 'react-navigation-header-buttons'
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import EventsListScreen from '../components/EventsListScreen';
-import LocationsScreen from '../components/LocationsScreen';
+import LocationSearchScreen from '../components/LocationSearchScreen';
 import EventDetailsScreen from '../components/EventDetailsScreen'
 import { addListener } from '../utils/redux';
+import LocationEventsScreen from "../components/LocationEventsScreen";
 
 
 /* Navigation stack for Event Details. Clicking on an event to get more info about it */
@@ -21,11 +22,12 @@ const EventsStack = StackNavigator(
   }
 );
 
-/* Navigation stack for choosing location TODO: this will defo change soon so blah blah blahb lahb */
+/* Navigation stack for choosing location */
 const LocationStack = StackNavigator(
   {
-    LocationList: {screen: LocationsScreen},
-    EventsList: {screen: EventsListScreen},
+    LocationSearch: {screen: LocationSearchScreen},
+    LocationEvents: {screen: LocationEventsScreen},
+    EventDetails: {screen: EventDetailsScreen},
   },
   {
     headerMode: 'none'
@@ -35,8 +37,8 @@ const LocationStack = StackNavigator(
 /* The nice bottom tabs used to navigate between screens */
 const BottomTabs = TabNavigator(
   {
-    Events: {screen: EventsStack},
-    Locations: {screen: LocationStack},
+    Events: {screen: EventsStack, navigationOptions: { tabBarLabel: 'Events' }},
+    Locations: {screen: LocationStack }, // not having tabBarLabel means that current location will be tab text
   },
   {
     navigationOptions: ({navigation}) => ({
@@ -47,7 +49,7 @@ const BottomTabs = TabNavigator(
           iconName = `md-microphone`;
           //iconName = `ios-microphone${focused ? '' : '-outline'}`;
         } else if (routeName === 'Locations') {
-          iconName = `md-people`;
+          iconName = `md-map`;
           //iconName = `ios-people${focused ? '' : '-outline'}`;
         }
 
