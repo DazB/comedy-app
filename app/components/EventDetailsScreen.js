@@ -26,8 +26,8 @@ class EventsDetailsScreen extends Component {
 
     return (
       <View>
-        <Text style={styles.TextStyle}>
-          {params.headline}
+        <Text style={styles.textStyle}>
+          Headline: {event["headline"]}
           {"\n\n\n"}
           Venue: {event["venue"]}
 
@@ -53,7 +53,7 @@ export default connect(mapStateToProps)(EventsDetailsScreen);
 
 const styles = StyleSheet.create({
 
-  TextStyle: {
+  textStyle: {
     fontFamily: 'helvetica',
     fontSize: 20,
     color: '#000',

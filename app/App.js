@@ -8,7 +8,7 @@ import configureStore from "./store/configureStore";
 
 // Need to set an initial state of events so app doesn't shit itself
 const initialState = {
-  eventsReducer: {eventsList: []}
+  eventsReducer: {eventsList: [], isFetching: false, error: true}
 };
 
 const store = configureStore(initialState);

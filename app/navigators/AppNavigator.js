@@ -9,6 +9,7 @@ import LocationSearchScreen from '../components/LocationSearchScreen';
 import EventDetailsScreen from '../components/EventDetailsScreen'
 import { addListener } from '../utils/redux';
 import LocationEventsScreen from "../components/LocationEventsScreen";
+import ArtistListScreen from "../components/ArtistListScreen";
 
 
 /* Navigation stack for Event Details. Clicking on an event to get more info about it */
@@ -22,7 +23,7 @@ const EventsStack = StackNavigator(
   }
 );
 
-/* Navigation stack for choosing location */
+/* Navigation stack for choosing location and seeing events there */
 const LocationStack = StackNavigator(
   {
     LocationSearch: {screen: LocationSearchScreen},
@@ -34,11 +35,21 @@ const LocationStack = StackNavigator(
   }
 );
 
+/* Navigation stack for choosing artists and seeing where they're playing */
+const ArtistStack = StackNavigator(
+  {
+    ArtistList: {screen: ArtistListScreen},
+  },
+  {
+    headerMode: 'none'
+  }
+);
+
 /* The nice bottom tabs used to navigate between screens */
 const BottomTabs = TabNavigator(
   {
     Events: {screen: EventsStack, navigationOptions: { tabBarLabel: 'Events' }},
-    Locations: {screen: LocationStack }, // not having tabBarLabel means that current location will be tab text
+    Artists: {screen: ArtistStack }, // not having tabBarLabel means that current location will be tab text
   },
   {
     navigationOptions: ({navigation}) => ({
@@ -48,8 +59,8 @@ const BottomTabs = TabNavigator(
         if (routeName === 'Events') {
           iconName = `md-microphone`;
           //iconName = `ios-microphone${focused ? '' : '-outline'}`;
-        } else if (routeName === 'Locations') {
-          iconName = `md-map`;
+        } else if (routeName === 'Artists') {
+          iconName = `md-people`;
           //iconName = `ios-people${focused ? '' : '-outline'}`;
         }
 

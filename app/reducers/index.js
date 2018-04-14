@@ -18,16 +18,18 @@ import {
 * These reducers are called through dispatches throughout the app, and handle the state changes for navigation.
 */
 
-// Our initial states, basically where the app states, in this case the home screen (which is the tabs for some reason)
+// Our initial states, basically where the app starts, in this case the home "screen" (which is the tabs for some reason)
 const firstAction = AppNavigator.router.getActionForPathAndParams('Home');
 const initialNavState = AppNavigator.router.getStateForAction(firstAction);
 
+// nav reducers handles the changes in our app navigation state
 function nav(state = initialNavState, action) {
   let nextState;
   switch (action.type) {
+    // User clicked on an event. Take them to the events details page, passing event id
     case 'EventDetails':
       nextState = AppNavigator.router.getStateForAction(
-        NavigationActions.navigate({ routeName: 'EventDetails' , params: {headline: action.headline, id: action.id}}),
+        NavigationActions.navigate({ routeName: 'EventDetails' , params: {id: action.id}}),
         state
       );
       break;

@@ -65,21 +65,21 @@ class EventsList extends Component {
     /* fetch has returned an empty events list */
     if (!this.props.isFetching && !this.props.error && this.props.eventsList.length === 0) {
       return (
-        <ScrollView
-          refreshControl={
-            <RefreshControl
-              refreshing= {false}
-              onRefresh={this._onRefresh.bind(this)}
-            />
-          }
-        >
-          <Text style={styles.ErrorMessageStyle}>
-            Nuffin 'ere m8 {"\n\n\n"}
-            No gigs to list {"\n"}
-            You can pull down to refresh (if you want I dunno I'm not your mum)
-          </Text>
-        </ScrollView>
-      );
+          <ScrollView
+            refreshControl={
+              <RefreshControl
+                refreshing= {false}
+                onRefresh={this._onRefresh.bind(this)}
+              />
+            }
+          >
+            <Text style={styles.ErrorMessageStyle}>
+              Nuffin 'ere m8 {"\n\n\n"}
+              No gigs to list {"\n"}
+              You can pull down to refresh (if you want I dunno I'm not your mum)
+            </Text>
+          </ScrollView>
+          );
     }
 
     /* We have no error from the fetch, and we have data :D
@@ -117,7 +117,7 @@ class SectionListItem extends Component {
       <View>
         <Text style={styles.SectionListItemStyle}
               onPress={() => this.props.navigation.dispatch({
-                type: 'EventDetails', headline: this.props.item.headline, id: this.props.item.id})
+                type: 'EventDetails', id: this.props.item.id})
               }>
           {this.props.item.headline}
         </Text>
@@ -168,6 +168,5 @@ const styles = StyleSheet.create({
     paddingTop: 10,
     paddingLeft: 20,
     paddingRight: 20
-
-  }
+  },
 });
