@@ -1,12 +1,13 @@
 import React, {Component} from 'react';
 import {
   StyleSheet,
-  View
+  View,
 } from 'react-native';
 
 import EventsList from './EventsList'
 import LocationMenu from './LocationMenu';
 import {connect} from 'react-redux'
+
 
 /**
  * EventsListScreen displays the EventsList component
@@ -24,10 +25,11 @@ class EventsListScreen extends Component {
   render() {
     // Only show the location menu button if we're not fetching data or if there's not been an error fetching data
     const ShowLocationMenu = () => {
-      if (!this.props.isFetching || !this.props.error)
+      if (!this.props.isFetching && !this.props.error) {
         return (
-          <LocationMenu/>
+          <LocationMenu navigation={this.props.navigation}/>
         );
+      }
       return null;
     };
 
@@ -59,13 +61,14 @@ export default connect(mapStateToProps)(EventsListScreen);
 
 const styles = StyleSheet.create({
   mainContainer:{
-    flex:1
+    flex:1,
   },
 
   locationMenuStyle: {
+    flex:1,
     position: 'absolute',
-    right: 5,
-    bottom: 5,
+    right: 10,
+    bottom: 10,
   },
 
 });

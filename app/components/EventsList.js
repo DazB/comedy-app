@@ -36,7 +36,7 @@ class EventsList extends Component {
     if (this.props.isFetching) {
       return (
         <View style={{paddingTop: 20}}>
-          <ActivityIndicator/>
+          <ActivityIndicator size="large"/>
         </View>
       );
     }

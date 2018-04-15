@@ -17,6 +17,7 @@ const EventsStack = StackNavigator(
   {
     EventsList: {screen: EventsListScreen},
     EventDetails: {screen: EventDetailsScreen},
+    LocationSearch: {screen: LocationSearchScreen},
   },
   {
     headerMode: 'none'

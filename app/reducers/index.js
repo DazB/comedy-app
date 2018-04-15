@@ -29,13 +29,19 @@ function nav(state = initialNavState, action) {
     // User clicked on an event. Take them to the events details page, passing event id
     case 'EventDetails':
       nextState = AppNavigator.router.getStateForAction(
-        NavigationActions.navigate({ routeName: 'EventDetails' , params: {id: action.id}}),
+        NavigationActions.navigate({routeName: 'EventDetails' , params: {id: action.id}}),
         state
       );
       break;
     case 'LocationEvents':
       nextState = AppNavigator.router.getStateForAction(
-        NavigationActions.navigate({ routeName: 'LocationEvents' , params: {placeName: action.placeName, location: action.location}}),
+        NavigationActions.navigate({routeName: 'LocationEvents' , params: {placeName: action.placeName, location: action.location}}),
+        state
+      );
+      break;
+    case 'LocationSearch':
+      nextState = AppNavigator.router.getStateForAction(
+        NavigationActions.navigate({routeName: 'LocationSearch'}),
         state
       );
       break;

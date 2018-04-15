@@ -9,6 +9,11 @@ export default class LocationSearchScreen extends Component {
   /* Title shown on header bar */
   static navigationOptions = {
     title: 'Locations',
+    headerLeft: (
+      <HeaderButtons IconComponent={Ionicons} iconSize={23} color="white">
+        <HeaderButtons.Item title="back" iconName="md-arrow-back" onPress={() => this.props.navigation.goBack()}/>
+      </HeaderButtons>
+    ),
   };
 
   render() {

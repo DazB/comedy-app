@@ -5,6 +5,7 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import AppWithNavigationState from './navigators/AppNavigator';
 import configureStore from "./store/configureStore";
+import {YellowBox} from 'react-native';
 
 // Need to set an initial state of events so app doesn't shit itself
 const initialState = {
@@ -12,6 +13,10 @@ const initialState = {
 };
 
 const store = configureStore(initialState);
+
+// Gets rid of those bloody useless warnings
+YellowBox.ignoreWarnings(['Warning: isMounted']);
+YellowBox.ignoreWarnings(['Remote debugger']);
 
 /*
 * The main of the app. This is what is shown.
