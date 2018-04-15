@@ -2,18 +2,22 @@ import React, {Component} from 'react';
 import {View, StyleSheet, TouchableHighlight} from 'react-native';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import HeaderButtons from 'react-navigation-header-buttons'
+
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 export default class LocationSearchScreen extends Component {
 
-  /* Title shown on header bar */
-  static navigationOptions = {
-    title: 'Locations',
-    headerLeft: (
-      <HeaderButtons IconComponent={Ionicons} iconSize={23} color="white">
-        <HeaderButtons.Item title="back" iconName="md-arrow-back" onPress={() => this.props.navigation.goBack()}/>
-      </HeaderButtons>
-    ),
+  /* Header bar */
+  static navigationOptions = ({ navigation }) => {
+    return {
+      title: 'Locations',
+      // Search icon on right
+      headerLeft: (
+        <HeaderButtons IconComponent={Ionicons} iconSize={23} color="white">
+          <HeaderButtons.Item title="back" iconName="md-arrow-back" onPress={() => navigation.goBack()}/>
+        </HeaderButtons>
+  ),
+    }
   };
 
   render() {
@@ -37,8 +41,8 @@ class GooglePlacesInput extends Component {
         fetchDetails={true}
         renderDescription={row => row.description} // custom description render
         onPress={(data, details) => { // 'details' is provided when fetchDetails = true
-          this.props.navigation.dispatch({
-            type: 'LocationEvents', placeName: data.description, location: details.geometry.location,
+          this.props.navigation.navigate('LocationEvents', {
+            placeName: data.description, location: details.geometry.location,
           })
         }}
 

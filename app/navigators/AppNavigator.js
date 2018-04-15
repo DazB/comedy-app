@@ -1,13 +1,11 @@
 import React from 'react';
-import { connect } from 'react-redux';
-import {TabNavigator, TabBarBottom, StackNavigator, addNavigationHelpers} from 'react-navigation';
+import {TabNavigator, TabBarBottom, StackNavigator} from 'react-navigation';
 import HeaderButtons from 'react-navigation-header-buttons'
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import EventsListScreen from '../components/EventsListScreen';
 import LocationSearchScreen from '../components/LocationSearchScreen';
 import EventDetailsScreen from '../components/EventDetailsScreen'
-import { addListener } from '../utils/redux';
 import LocationEventsScreen from "../components/LocationEventsScreen";
 import ArtistListScreen from "../components/ArtistListScreen";
 
@@ -106,29 +104,3 @@ export const AppNavigator = StackNavigator(
     },
   },
 );
-
-/*
-* This is our full app integrated with a navigation prop. Navigation is sent to all components though props and Redux,
-* so we don't have to explicitly pass it down to every component (in hindsight that might have been easier but fuck it
-* this works
-*/
-class AppWithNavigationState extends React.Component {
-  render() {
-    const { dispatch, nav } = this.props;
-    return (
-      <AppNavigator
-        navigation={addNavigationHelpers({
-          dispatch,
-          state: nav,
-          addListener,
-        })}
-      />
-    );
-  }
-}
-
-const mapStateToProps = state => ({
-  nav: state.nav,
-});
-
-export default connect(mapStateToProps)(AppWithNavigationState);

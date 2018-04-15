@@ -116,9 +116,7 @@ class SectionListItem extends Component {
     return (
       <View>
         <Text style={styles.SectionListItemStyle}
-              onPress={() => this.props.navigation.dispatch({
-                type: 'EventDetails', id: this.props.item.id})
-              }>
+              onPress={() => this.props.navigation.navigate('EventDetails', {id: this.props.item.id})}>
           {this.props.item.headline}
         </Text>
       </View>

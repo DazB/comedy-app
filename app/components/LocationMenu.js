@@ -35,10 +35,7 @@ export default class LocationMenu extends Component {
                 {key: 'Add/Remove Locations'},
               ]}
               renderItem={({item}) =>
-                  <Text style={styles.listItem}
-                    onPress={() => this.props.navigation.dispatch({
-                      type: 'LocationSearch'})
-                    }>
+                  <Text style={styles.listItem} onPress={() => this.props.navigation.navigate('LocationSearch')}>
                     {item.key}
                   </Text>
                 }

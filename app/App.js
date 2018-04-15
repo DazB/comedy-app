@@ -3,8 +3,8 @@
  */
 import React from 'react';
 import { Provider } from 'react-redux';
-import AppWithNavigationState from './navigators/AppNavigator';
-import configureStore from "./store/configureStore";
+import { AppNavigator }from './navigators/AppNavigator';
+import configureStore from './store/configureStore';
 import {YellowBox} from 'react-native';
 
 // Need to set an initial state of events so app doesn't shit itself
@@ -20,13 +20,13 @@ YellowBox.ignoreWarnings(['Remote debugger']);
 
 /*
 * The main of the app. This is what is shown.
-* Redux controls both the app data and navigation data
+* Redux controls app data.
 */
 export default class App extends React.Component {
   render() {
     return (
       <Provider store={store}>
-        <AppWithNavigationState />
+        <AppNavigator />
       </Provider>
     );
   }

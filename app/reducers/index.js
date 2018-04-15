@@ -5,54 +5,10 @@
 */
 import {combineReducers} from 'redux'
 
-import { NavigationActions } from 'react-navigation';
-import { AppNavigator } from '../navigators/AppNavigator';
-
 import {
   REQUEST_EVENTS,
   RECEIVE_EVENTS,
 } from '../actions/index'
-
-/*
-* Navigation routes
-* These reducers are called through dispatches throughout the app, and handle the state changes for navigation.
-*/
-
-// Our initial states, basically where the app starts, in this case the home "screen" (which is the tabs for some reason)
-const firstAction = AppNavigator.router.getActionForPathAndParams('Home');
-const initialNavState = AppNavigator.router.getStateForAction(firstAction);
-
-// nav reducers handles the changes in our app navigation state
-function nav(state = initialNavState, action) {
-  let nextState;
-  switch (action.type) {
-    // User clicked on an event. Take them to the events details page, passing event id
-    case 'EventDetails':
-      nextState = AppNavigator.router.getStateForAction(
-        NavigationActions.navigate({routeName: 'EventDetails' , params: {id: action.id}}),
-        state
-      );
-      break;
-    case 'LocationEvents':
-      nextState = AppNavigator.router.getStateForAction(
-        NavigationActions.navigate({routeName: 'LocationEvents' , params: {placeName: action.placeName, location: action.location}}),
-        state
-      );
-      break;
-    case 'LocationSearch':
-      nextState = AppNavigator.router.getStateForAction(
-        NavigationActions.navigate({routeName: 'LocationSearch'}),
-        state
-      );
-      break;
-    default:
-      nextState = AppNavigator.router.getStateForAction(action, state);
-      break;
-  }
-
-  // Simply return the original `state` if `nextState` is null or undefined.
-  return nextState || state;
-}
 
 /*
 * Events reducers
@@ -80,7 +36,7 @@ function eventsReducer(state = { isFetching: false, events: [], eventsList: [] }
 
 // Combine both reducers to pass to the store config
 const rootReducer = combineReducers({
-  nav,
+  // nav,
   eventsReducer
 });
 

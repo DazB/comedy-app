@@ -8,7 +8,6 @@ import EventsList from './EventsList'
 import LocationMenu from './LocationMenu';
 import {connect} from 'react-redux'
 
-
 /**
  * EventsListScreen displays the EventsList component
  */
