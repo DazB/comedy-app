@@ -9,6 +9,26 @@
 
 const TIMEOUT = 5000; // timeout to fetch data in ms
 
+export const ADD_LOCATION = 'ADD_LOCATION';
+/* Add Location action creator */
+export function addLocation(placeName, geoLocation) {
+  return {
+    type: ADD_LOCATION,
+    placeName: placeName,
+    geoLocation: geoLocation,
+  }
+}
+
+export const SELECT_LOCATION = 'SELECT_LOCATION';
+/* Select Location action creator */
+export function selectLocation(placeName, geoLocation) {
+  return {
+    type: SELECT_LOCATION,
+    placeName: placeName,
+    geoLocation: geoLocation,
+  }
+}
+
 export const REQUEST_EVENTS = 'REQUEST_EVENTS';
 /* Request Events action creator */
 function requestEvents() {

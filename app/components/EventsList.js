@@ -53,7 +53,7 @@ class EventsList extends Component {
             />
           }
         >
-          <Text style={styles.ErrorMessageStyle}>
+          <Text style={styles.errorMessageStyle}>
             S'mofo butter layin' me to da' BONE! Jackin' me up... tight me {"\n\n\n"}
             Connection error {"\n"}
             Wait a mo and pull down to refresh
@@ -73,7 +73,7 @@ class EventsList extends Component {
               />
             }
           >
-            <Text style={styles.ErrorMessageStyle}>
+            <Text style={styles.errorMessageStyle}>
               Nuffin 'ere m8 {"\n\n\n"}
               No gigs to list {"\n"}
               You can pull down to refresh (if you want I dunno I'm not your mum)
@@ -85,16 +85,20 @@ class EventsList extends Component {
     /* We have no error from the fetch, and we have data :D
     The list of events has already been parsed and formatted in the actions */
     return (
-      <SectionList
-        sections={this.props.eventsList}
-        renderSectionHeader={({section}) => {
-          return (<SectionListHeader section={section}/>)
-        }}
-        renderItem={({item, index}) => {
-          return (<SectionListItem item={item} index={index} navigation={this.props.navigation}/>)
-        }}
-        keyExtractor={(item, index) => index}
-      />
+      <View>
+        <Text style={styles.titleStyle}> {this.props.placeName}</Text>
+        <SectionList
+          sections={this.props.eventsList}
+          renderSectionHeader={({section}) => {
+            return (<SectionListHeader section={section}/>)
+          }}
+          renderItem={({item, index}) => {
+            return (<SectionListItem item={item} index={index} navigation={this.props.navigation}/>)
+          }}
+          keyExtractor={(item, index) => index}
+          stickySectionHeadersEnabled
+        />
+      </View>
     );
   }
 }
@@ -103,7 +107,7 @@ class EventsList extends Component {
 class SectionListHeader extends Component {
   render() {
     return (
-      <Text style={styles.SectionHeaderStyle}>
+      <Text style={styles.sectionHeaderStyle}>
         {this.props.section.title}
       </Text>
     );
@@ -115,7 +119,7 @@ class SectionListItem extends Component {
   render() {
     return (
       <View>
-        <Text style={styles.SectionListItemStyle}
+        <Text style={styles.sectionListItemStyle}
               onPress={() => this.props.navigation.navigate('EventDetails', {id: this.props.item.id})}>
           {this.props.item.headline}
         </Text>
@@ -143,21 +147,30 @@ export default connect(mapStateToProps)(EventsList);
 
 const styles = StyleSheet.create({
 
-  SectionHeaderStyle: {
+  sectionHeaderStyle: {
     backgroundColor: '#00648d',
     fontSize: 20,
     padding: 5,
     color: '#fff',
   },
 
-  SectionListItemStyle: {
+  sectionListItemStyle: {
     fontSize: 15,
     padding: 5,
     color: '#000',
     backgroundColor: '#F5F5F5'
   },
 
-  ErrorMessageStyle: {
+  titleStyle: {
+    fontFamily: 'helvetica',
+    fontSize: 18,
+    color: '#000',
+    textAlign: 'center',
+    paddingTop: 5,
+    paddingBottom: 5,
+  },
+
+  errorMessageStyle: {
     fontFamily: 'helvetica',
     fontSize: 20,
     color: '#000',

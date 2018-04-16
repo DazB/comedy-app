@@ -5,7 +5,9 @@ import HeaderButtons from 'react-navigation-header-buttons'
 
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-export default class LocationSearchScreen extends Component {
+import {connect} from 'react-redux'
+
+class LocationSearchScreen extends Component {
 
   /* Header bar */
   static navigationOptions = ({ navigation }) => {
@@ -23,7 +25,7 @@ export default class LocationSearchScreen extends Component {
   render() {
     return (
       <View style={styles.content}>
-        <GooglePlacesInput navigation={this.props.navigation}/>
+        <GooglePlacesInput navigation={this.props.navigation} onLocationSelect={this.props.onLocationSelect}/>
       </View>
     )
   }
@@ -41,9 +43,10 @@ class GooglePlacesInput extends Component {
         fetchDetails={true}
         renderDescription={row => row.description} // custom description render
         onPress={(data, details) => { // 'details' is provided when fetchDetails = true
-          this.props.navigation.navigate('LocationEvents', {
-            placeName: data.description, location: details.geometry.location,
-          })
+          // add this location to our list of locations and make it the currently selected location on the main events screen
+          this.props.onLocationSelect(data.description, details.geometry.location);
+          // navigate to main screen with new location
+          this.props.navigation.navigate('EventsList')
         }}
 
         getDefaultValue={() => ''}
@@ -71,6 +74,18 @@ class GooglePlacesInput extends Component {
     );
   }
 }
+
+function mapDispatchToProps(dispatch) {
+  return {
+    // When location is selected from the search location list, add it to our list and select it as current location
+    onLocationSelect: (placeName, geoLocation) => {
+      dispatch({type: 'ADD_LOCATION', placeName: placeName, geoLocation: geoLocation});
+      dispatch({type: 'SELECT_LOCATION', placeName: placeName, geoLocation: geoLocation});
+    }
+  }
+}
+
+export default connect(null, mapDispatchToProps)(LocationSearchScreen);
 
 const styles = StyleSheet.create({
   content: {

@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import {
   StyleSheet,
   View,
+  Text,
 } from 'react-native';
 
 import EventsList from './EventsList'
@@ -32,10 +33,26 @@ class EventsListScreen extends Component {
       return null;
     };
 
+    // If no place has been selected, tell the user to go do that
+    if (this.props.currentLocation === "") {
+      return (
+        <View style={styles.mainContainer}>
+          <Text style={styles.errorMessageStyle}>
+            See that wee button down there? {"\n\n\n"}
+            Go ahead and push it {"\n"}
+            Find yourself a nice place you want to see some comedy in
+          </Text>
+          <View style={styles.locationMenuStyle}>
+            <LocationMenu navigation={this.props.navigation}/>
+          </View>
+        </View>
+      );
+    }
+
     // Show EventsList component, and the LocationMenu if data has been received
     return (
       <View style={styles.mainContainer}>
-        <EventsList navigation={this.props.navigation} location={{"lat": 53.95996510000001,"lng": -1.0872979}}/>
+        <EventsList navigation={this.props.navigation} placeName={this.props.currentLocation[0]} location={this.props.currentLocation[1]}/>
         <View style={styles.locationMenuStyle}>
           <ShowLocationMenu/>
         </View>
@@ -51,7 +68,9 @@ class EventsListScreen extends Component {
 function mapStateToProps(state) {
   return {
     isFetching: state.eventsReducer.isFetching,
-    error: state.eventsReducer.error
+    error: state.eventsReducer.error,
+    currentLocation: state.locationReducer.currentLocation,
+    locations: state.locationReducer.locations,
   }
 }
 
@@ -68,6 +87,17 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 10,
     bottom: 10,
+  },
+
+  errorMessageStyle: {
+    fontFamily: 'helvetica',
+    fontSize: 20,
+    color: '#000',
+    textAlign: 'center',
+    justifyContent: 'center',
+    paddingTop: 10,
+    paddingLeft: 20,
+    paddingRight: 20
   },
 
 });
