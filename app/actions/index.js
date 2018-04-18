@@ -10,7 +10,7 @@
 const TIMEOUT = 5000; // timeout to fetch data in ms
 
 export const ADD_LOCATION = 'ADD_LOCATION';
-/* Add Location action creator */
+/* Add Location action creator. Adds location object ({geoLocation: placeName}) to our list of saved locations */
 export function addLocation(placeName, geoLocation) {
   return {
     type: ADD_LOCATION,
@@ -20,7 +20,7 @@ export function addLocation(placeName, geoLocation) {
 }
 
 export const SELECT_LOCATION = 'SELECT_LOCATION';
-/* Select Location action creator */
+/* Select Location action creator. Makes passed in details currently selected location */
 export function selectLocation(placeName, geoLocation) {
   return {
     type: SELECT_LOCATION,
@@ -59,10 +59,7 @@ function receiveEvents(json, error) {
 function fetchEvents(geoLocation) {
   // localhost for android emulator
   let ipAddress = 'http://10.0.2.2:8080/'; // Server ip address. Other ip => 'http://10.0.1.17:5000/'
-
-  if (typeof geoLocation !== 'undefined') { // Check if we've been passed a geo coordinate location
-    ipAddress += 'events?location=' + geoLocation.lat +',' + geoLocation.lng; // Append it to the end of our API call
-  }
+  ipAddress += 'events?location=' + geoLocation.lat +',' + geoLocation.lng; // Append geo coordinate location to the end of our API call
 
   // Thunk middleware passes the dispatch method as an argument to the function,
   // thus making it able to dispatch actions itself.

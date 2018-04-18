@@ -8,8 +8,10 @@ import {
 } from 'react-native';
 
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import {connect} from "react-redux";
+import {fetchEventsIfNeeded} from "../actions";
 
-export default class LocationMenu extends Component {
+class LocationMenu extends Component {
   constructor(props) {
     super(props);
     this.state = {showList: false};
@@ -28,17 +30,34 @@ export default class LocationMenu extends Component {
     // Only show the location list if user toggled button
     const ShowLocationList = () => {
       if (this.state.showList) {
+        // Go through list of saved locations and display names in list
+        let listData = [];
+        for(let index in this.props.locations) {
+          if(this.props.locations.hasOwnProperty(index)) {
+            listData.push(this.props.locations[index]);
+          }
+        }
+        listData.push({placeName: 'Add/Remove Locations'});
         return (
           <View style={styles.locationListStyle}>
             <FlatList
-              data={[
-                {key: 'Add/Remove Locations'},
-              ]}
+              data={listData}
               renderItem={({item}) =>
-                  <Text style={styles.listItem} onPress={() => this.props.navigation.navigate('LocationSearch')}>
-                    {item.key}
+                  <Text style={styles.listItem} onPress={() => {
+                    if(item.placeName === 'Add/Remove Locations') {
+                      this.props.navigation.navigate('LocationSearch');
+                    }
+                    else {
+                      this.props.dispatch({type: 'SELECT_LOCATION', placeName: item.placeName, geoLocation: item.geoLocation});
+                      this.props.dispatch(fetchEventsIfNeeded(item.geoLocation));
+                    }
+                  }
+                  }>
+                    {item.placeName}
                   </Text>
                 }
+              // Key is place name (should be unique, right?)
+              keyExtractor={item => item.placeName}
             />
           </View>
         );
@@ -56,6 +75,18 @@ export default class LocationMenu extends Component {
     );
   }
 }
+
+/*
+  Take data from the app current state and insert/link it into the props
+ */
+function mapStateToProps(state) {
+  return {
+    locations: state.locationReducer.locations,
+  }
+}
+
+//Connect state to props (basically gets us the state)
+export default connect(mapStateToProps)(LocationMenu);
 
 const styles = StyleSheet.create({
 

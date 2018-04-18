@@ -17,20 +17,19 @@ import {
 * Location reducer
 * Change state of app based on user adding or removing locations
 */
-function locationReducer(state = {locations: [], currentLocation: ""}, action) {
+function locationReducer(state = {locations: [], currentPlaceName: ""}, action) {
   switch (action.type) {
     case ADD_LOCATION:
       return {
         ...state,
-        locations: {
-          ...state.locations, [action.geoLocation]: action.placeName
-        }
+        locations: [...state.locations, {placeName: action.placeName, geoLocation: action.geoLocation}]
       };
 
     case SELECT_LOCATION:
       return {
         ...state,
-        currentLocation: [action.placeName, action.geoLocation],
+        currentPlaceName: action.placeName,
+        currentGeoLocation: action.geoLocation,
       };
     default:
       return state

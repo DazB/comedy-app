@@ -22,16 +22,15 @@ class EventsList extends Component {
 
   // invoked immediately after a component is mounted. Fetch events from specific location (if defined)
   componentDidMount() {
-    this.props.dispatch(fetchEventsIfNeeded(this.props.location));
+    this.props.dispatch(fetchEventsIfNeeded(this.props.currentGeoLocation));
   }
 
   // Called when user pulls down on connection error message. Will cause little spinny refresh circle thing to appear
   _onRefresh() {
-    this.props.dispatch(fetchEventsIfNeeded(this.props.location));
+    this.props.dispatch(fetchEventsIfNeeded(this.props.currentGeoLocation));
   }
 
   render() {
-    console.log(this.props.location);
     // If fetch command still getting data, show loading shit (little spinny refresh circle)
     if (this.props.isFetching) {
       return (
@@ -86,7 +85,7 @@ class EventsList extends Component {
     The list of events has already been parsed and formatted in the actions */
     return (
       <View>
-        <Text style={styles.titleStyle}> {this.props.placeName}</Text>
+        <Text style={styles.titleStyle}> {this.props.currentPlaceName}</Text>
         <SectionList
           sections={this.props.eventsList}
           renderSectionHeader={({section}) => {
@@ -138,7 +137,9 @@ function mapStateToProps(state) {
     eventsList: state.eventsReducer.eventsList,
     isFetching: state.eventsReducer.isFetching,
     lastUpdated: state.eventsReducer.lastUpdated,
-    error: state.eventsReducer.error
+    error: state.eventsReducer.error,
+    currentPlaceName: state.locationReducer.currentPlaceName,
+    currentGeoLocation: state.locationReducer.currentGeoLocation,
   }
 }
 

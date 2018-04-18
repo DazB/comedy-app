@@ -27,14 +27,14 @@ class EventsListScreen extends Component {
     const ShowLocationMenu = () => {
       if (!this.props.isFetching && !this.props.error) {
         return (
-          <LocationMenu navigation={this.props.navigation}/>
+          <LocationMenu navigation={this.props.navigation} locations={this.props.locations}/>
         );
       }
       return null;
     };
 
     // If no place has been selected, tell the user to go do that
-    if (this.props.currentLocation === "") {
+    if (this.props.currentPlaceName === "") {
       return (
         <View style={styles.mainContainer}>
           <Text style={styles.errorMessageStyle}>
@@ -48,13 +48,12 @@ class EventsListScreen extends Component {
         </View>
       );
     }
-
     // Show EventsList component, and the LocationMenu if data has been received
     return (
       <View style={styles.mainContainer}>
-        <EventsList navigation={this.props.navigation} placeName={this.props.currentLocation[0]} location={this.props.currentLocation[1]}/>
+        <EventsList navigation={this.props.navigation}/>
         <View style={styles.locationMenuStyle}>
-          <ShowLocationMenu/>
+          <ShowLocationMenu />
         </View>
       </View>
 
@@ -69,7 +68,8 @@ function mapStateToProps(state) {
   return {
     isFetching: state.eventsReducer.isFetching,
     error: state.eventsReducer.error,
-    currentLocation: state.locationReducer.currentLocation,
+    currentPlaceName: state.locationReducer.currentPlaceName,
+    currentGeoLocation: state.locationReducer.currentGeoLocation,
     locations: state.locationReducer.locations,
   }
 }
