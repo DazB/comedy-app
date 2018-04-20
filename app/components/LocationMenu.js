@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import {
   StyleSheet,
   TouchableOpacity,
@@ -32,9 +32,9 @@ class LocationMenu extends Component {
       if (this.state.showList) {
         // Go through list of saved locations and display names in list
         let listData = [];
-        for(let index in this.props.locations) {
-          if(this.props.locations.hasOwnProperty(index)) {
-            listData.push(this.props.locations[index]);
+        for (let index in this.props.locations) {
+          if (this.props.locations.hasOwnProperty(index)) {
+              listData.push(this.props.locations[index]);
           }
         }
         listData.push({placeName: 'Add/Remove Locations'});
@@ -43,19 +43,29 @@ class LocationMenu extends Component {
             <FlatList
               data={listData}
               renderItem={({item}) =>
-                  <Text style={styles.listItem} onPress={() => {
-                    if(item.placeName === 'Add/Remove Locations') {
-                      this.props.navigation.navigate('LocationSearch');
-                    }
-                    else {
-                      this.props.dispatch({type: 'SELECT_LOCATION', placeName: item.placeName, geoLocation: item.geoLocation});
+                <Text style={styles.listItem} onPress={() => {
+                  if (item.placeName === 'Add/Remove Locations') {
+                    this.setState({showList: false});
+                    this.props.navigation.navigate('LocationSearch');
+                  }
+                  else {
+                    this.setState({showList: false});
+                    // Only dispatch if selected place name is different to the one currently showing
+                    if (this.props.currentPlaceName !== item.placeName) {
+                      this.props.dispatch({
+                        type: 'SELECT_LOCATION',
+                        placeName: item.placeName,
+                        geoLocation: item.geoLocation
+                      });
+                      this.props.dispatch({type: 'INVALIDATE_EVENTS'});
                       this.props.dispatch(fetchEventsIfNeeded(item.geoLocation));
                     }
                   }
-                  }>
-                    {item.placeName}
-                  </Text>
                 }
+                }>
+                  {item.placeName}
+                </Text>
+              }
               // Key is place name (should be unique, right?)
               keyExtractor={item => item.placeName}
             />
@@ -69,19 +79,19 @@ class LocationMenu extends Component {
       <View style={styles.menuContainer}>
         <ShowLocationList/>
         <TouchableOpacity style={styles.buttonStyle} onPress={this.onPressButton}>
-          <Ionicons name={"md-pin"}  size={30} color="#01a699" />
+          <Ionicons name={"md-pin"} size={30} color="#01a699"/>
         </TouchableOpacity>
       </View>
     );
   }
 }
 
-/*
-  Take data from the app current state and insert/link it into the props
- */
+
+// Take data from the app current state and insert/link it into the props
 function mapStateToProps(state) {
   return {
     locations: state.locationReducer.locations,
+    currentPlaceName: state.locationReducer.currentPlaceName,
   }
 }
 
@@ -90,19 +100,19 @@ export default connect(mapStateToProps)(LocationMenu);
 
 const styles = StyleSheet.create({
 
-  menuContainer:{
+  menuContainer: {
     flex: 1,
   },
 
   buttonStyle: {
-    borderWidth:1,
-    borderColor:'rgba(0,0,0,0.2)',
-    alignItems:'center',
-    justifyContent:'center',
-    width:70,
-    height:70,
-    backgroundColor:'#fff',
-    borderRadius:100,
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 70,
+    height: 70,
+    backgroundColor: '#fff',
+    borderRadius: 100,
   },
 
   locationListStyle: {
@@ -110,7 +120,7 @@ const styles = StyleSheet.create({
     width: 140,
     right: 40,
     bottom: 60,
-    backgroundColor:'#fff',
+    backgroundColor: '#fff',
   },
 
   listItem: {

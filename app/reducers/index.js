@@ -12,6 +12,7 @@ import {
   REQUEST_EVENTS,
   RECEIVE_EVENTS,
 } from '../actions/index'
+import {INVALIDATE_EVENTS} from "../actions";
 
 /*
 * Location reducer
@@ -19,12 +20,13 @@ import {
 */
 function locationReducer(state = {locations: [], currentPlaceName: ""}, action) {
   switch (action.type) {
+    // Add new location to list of location
     case ADD_LOCATION:
       return {
         ...state,
         locations: [...state.locations, {placeName: action.placeName, geoLocation: action.geoLocation}]
       };
-
+    // Save currently selected location
     case SELECT_LOCATION:
       return {
         ...state,
@@ -43,11 +45,13 @@ function locationReducer(state = {locations: [], currentPlaceName: ""}, action) 
 */
 function eventsReducer(state = { isFetching: false, events: [], eventsList: [] }, action) {
   switch (action.type) {
+    // We've requested some events. Set isFetching to true
     case REQUEST_EVENTS:
       return {
         ...state,
         isFetching: true,
       };
+    // We've received events
     case RECEIVE_EVENTS:
       return {
         ...state,
@@ -56,6 +60,12 @@ function eventsReducer(state = { isFetching: false, events: [], eventsList: [] }
         events: action.events,
         eventsList: action.eventsList,
         error: action.error
+      };
+    // Our current list of events is invalid
+    case INVALIDATE_EVENTS:
+      return {
+        ...state,
+        events: [],
       };
     default:
       return state

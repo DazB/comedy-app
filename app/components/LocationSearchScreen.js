@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import {View, StyleSheet, TouchableHighlight} from 'react-native';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import HeaderButtons from 'react-navigation-header-buttons'
-
+import { NavigationActions } from 'react-navigation';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import {connect} from 'react-redux'
@@ -45,8 +45,12 @@ class GooglePlacesInput extends Component {
         onPress={(data, details) => { // 'details' is provided when fetchDetails = true
           // add this location to our list of locations and make it the currently selected location on the main events screen
           this.props.onLocationSelect(data.description, details.geometry.location);
-          // navigate to main screen with new location
-          this.props.navigation.navigate('EventsList')
+          // Navigate to main screen with new location. reset stops the screens from stacking.
+          const resetAction = NavigationActions.reset({
+            index: 0,
+            actions: [NavigationActions.navigate({ routeName: 'EventsList' })],
+          });
+          this.props.navigation.dispatch(resetAction);
         }}
 
         getDefaultValue={() => ''}
@@ -77,8 +81,10 @@ class GooglePlacesInput extends Component {
 
 function mapDispatchToProps(dispatch) {
   return {
-    // When location is selected from the search location list, add it to our list and select it as current location
+    // When location is selected from the search location list, invalidate current list of events,
+    // add selected location to our list and set it as current location
     onLocationSelect: (placeName, geoLocation) => {
+      dispatch({type: 'INVALIDATE_EVENTS'});
       dispatch({type: 'ADD_LOCATION', placeName: placeName, geoLocation: geoLocation});
       dispatch({type: 'SELECT_LOCATION', placeName: placeName, geoLocation: geoLocation});
     }

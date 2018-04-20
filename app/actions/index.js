@@ -51,6 +51,14 @@ function receiveEvents(json, error) {
   }
 }
 
+export const INVALIDATE_EVENTS = 'INVALIDATE_EVENTS';
+/* Invalidate Events action creator */
+function invalidateEvents() {
+  return {
+    type: INVALIDATE_EVENTS,
+  }
+}
+
 /*
 * Here an action creator can return a function instead of an action object. This way, the action creator becomes a thunk.
 * When an action returns a thunk, it's executed by Redux middleware (redux-thunk). Doesn't need to be pure, so can have
@@ -82,7 +90,7 @@ function fetchEvents(geoLocation) {
 // Returns true if events in application state is empty
 function shouldFetchEvents(state) {
   const events = state.events;
-  if (!events) {
+  if (!events || events.length === 0) {
     return true
   } else if (state.isFetching) {
     return false
@@ -97,7 +105,7 @@ export function fetchEventsIfNeeded(geoLocation) {
   // a cached value is already available.
 
   return (dispatch, getState) => {
-    if (shouldFetchEvents(getState())) {
+    if (shouldFetchEvents(getState().eventsReducer)) {
       // Dispatch a thunk from thunk!
       return dispatch(fetchEvents(geoLocation))
     } else {
