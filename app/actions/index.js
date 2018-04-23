@@ -83,14 +83,14 @@ function fetchEvents(geoLocation) {
       /* On success the update the app state with the results of the API call and say no errors */
       .then(json => dispatch(receiveEvents(json, false)))
       // On a timeout return an undefined list of events and say there's been an error
-      .catch(error => dispatch(receiveEvents({}, true)))
+      .catch(error => dispatch(receiveEvents([], true)))
   }
 }
 
-// Returns true if events in application state is empty
+// Returns true if events in application state is null or empty.
 function shouldFetchEvents(state) {
   const events = state.events;
-  if (!events || events.length === 0) {
+  if (!events || (events.length === 0)) {
     return true
   } else if (state.isFetching) {
     return false

@@ -32,11 +32,13 @@ class LocationMenu extends Component {
       if (this.state.showList) {
         // Go through list of saved locations and display names in list
         let listData = [];
-        for (let index in this.props.locations) {
-          if (this.props.locations.hasOwnProperty(index)) {
-              listData.push(this.props.locations[index]);
-          }
-        }
+
+        // Pushes every saved location object {placeName: "...", geoLocation: "..."} into list data.
+        this.props.locations.forEach((location) => {
+          listData.push(location);
+        });
+
+        // So we have a Add/Remove Location button on the bottom of the list
         listData.push({placeName: 'Add/Remove Locations'});
         return (
           <View style={styles.locationListStyle}>
@@ -44,6 +46,7 @@ class LocationMenu extends Component {
               data={listData}
               renderItem={({item}) =>
                 <Text style={styles.listItem} onPress={() => {
+                  // Add/Remove Locations sends user to LocationSearchScreen
                   if (item.placeName === 'Add/Remove Locations') {
                     this.setState({showList: false});
                     this.props.navigation.navigate('LocationSearch');

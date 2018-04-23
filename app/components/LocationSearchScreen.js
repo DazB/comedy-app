@@ -1,16 +1,17 @@
 import React, {Component} from 'react';
-import {View, StyleSheet, TouchableHighlight} from 'react-native';
-import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import {View, StyleSheet, FlatList, Text} from 'react-native';
+import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
 import HeaderButtons from 'react-navigation-header-buttons'
-import { NavigationActions } from 'react-navigation';
+import {NavigationActions} from 'react-navigation';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import {connect} from 'react-redux'
+import {fetchEventsIfNeeded} from "../actions";
 
 class LocationSearchScreen extends Component {
 
   /* Header bar */
-  static navigationOptions = ({ navigation }) => {
+  static navigationOptions = ({navigation}) => {
     return {
       title: 'Locations',
       // Search icon on right
@@ -18,14 +19,41 @@ class LocationSearchScreen extends Component {
         <HeaderButtons IconComponent={Ionicons} iconSize={23} color="white">
           <HeaderButtons.Item title="back" iconName="md-arrow-back" onPress={() => navigation.goBack()}/>
         </HeaderButtons>
-  ),
+      ),
     }
   };
 
   render() {
+    // Go through list of saved locations and display names in list
+    let listData = [];
+    // Pushes every saved location object {placeName: "...", geoLocation: "..."} into list data.
+    this.props.locations.forEach((location) => {
+      listData.push(location);
+    });
+
     return (
       <View style={styles.content}>
-        <GooglePlacesInput navigation={this.props.navigation} onLocationSelect={this.props.onLocationSelect}/>
+        <GooglePlacesInput navigation={this.props.navigation} dispatch={this.props.dispatch}
+                           locations={this.props.locations}/>
+        <FlatList
+          data={listData}
+          renderItem={({item}) =>
+            <Text style={styles.listItem} onPress={() => {
+              this.props.dispatch({
+                type: 'SELECT_LOCATION',
+                placeName: item.placeName,
+                geoLocation: item.geoLocation
+              });
+              this.props.dispatch({type: 'INVALIDATE_EVENTS'});
+              this.props.dispatch(fetchEventsIfNeeded(item.geoLocation));
+              this.props.navigation.navigate('EventsList');
+            }}>
+              {item.placeName}
+            </Text>
+          }
+          // Key is place name (should be unique, right?)
+          keyExtractor={item => item.placeName}
+        />
       </View>
     )
   }
@@ -43,12 +71,38 @@ class GooglePlacesInput extends Component {
         fetchDetails={true}
         renderDescription={row => row.description} // custom description render
         onPress={(data, details) => { // 'details' is provided when fetchDetails = true
-          // add this location to our list of locations and make it the currently selected location on the main events screen
-          this.props.onLocationSelect(data.description, details.geometry.location);
+          // Check to see if the selected location exists in our list of locations
+          let locationAlreadySaved = false;
+          // If our locations list is empty, well this is a new locations innit?
+          if (!this.props.locations || (this.props.locations.length === 0)) {
+            locationAlreadySaved = false;
+          }
+          // Go through every saved location compare to one selected
+          this.props.locations.forEach((location) => {
+            if (location.placeName === data.description) {
+              locationAlreadySaved = true;
+            }
+          });
+          // Only add location if it isn't already saved to our list of locations
+          if (!locationAlreadySaved) {
+            // add this location to our list of locations and make it the currently selected location on the main events screen
+            this.props.dispatch({
+              type: 'ADD_LOCATION',
+              placeName: data.description,
+              geoLocation: details.geometry.location
+            });
+          }
+          this.props.dispatch({
+            type: 'SELECT_LOCATION',
+            placeName: data.description,
+            geoLocation: details.geometry.location
+          });
+          this.props.dispatch({type: 'INVALIDATE_EVENTS'});
+
           // Navigate to main screen with new location. reset stops the screens from stacking.
           const resetAction = NavigationActions.reset({
             index: 0,
-            actions: [NavigationActions.navigate({ routeName: 'EventsList' })],
+            actions: [NavigationActions.navigate({routeName: 'EventsList'})],
           });
           this.props.navigation.dispatch(resetAction);
         }}
@@ -79,19 +133,15 @@ class GooglePlacesInput extends Component {
   }
 }
 
-function mapDispatchToProps(dispatch) {
+// Take data from the app current state and insert/link it into the props. Also maps dispatch.
+function mapStateToProps(state) {
   return {
-    // When location is selected from the search location list, invalidate current list of events,
-    // add selected location to our list and set it as current location
-    onLocationSelect: (placeName, geoLocation) => {
-      dispatch({type: 'INVALIDATE_EVENTS'});
-      dispatch({type: 'ADD_LOCATION', placeName: placeName, geoLocation: geoLocation});
-      dispatch({type: 'SELECT_LOCATION', placeName: placeName, geoLocation: geoLocation});
-    }
+    locations: state.locationReducer.locations,
+    currentPlaceName: state.locationReducer.currentPlaceName,
   }
 }
 
-export default connect(null, mapDispatchToProps)(LocationSearchScreen);
+export default connect(mapStateToProps)(LocationSearchScreen);
 
 const styles = StyleSheet.create({
   content: {
@@ -99,5 +149,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center'
-  }
+  },
+
+  listItem: {
+    padding: 10,
+    fontSize: 16,
+  },
+
 });

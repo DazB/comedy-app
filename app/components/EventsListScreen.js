@@ -27,7 +27,7 @@ class EventsListScreen extends Component {
     const ShowLocationMenu = () => {
       if (!this.props.isFetching && !this.props.error) {
         return (
-          <LocationMenu navigation={this.props.navigation} locations={this.props.locations}/>
+          <LocationMenu navigation={this.props.navigation}/>
         );
       }
       return null;
@@ -53,7 +53,7 @@ class EventsListScreen extends Component {
       <View style={styles.mainContainer}>
         <EventsList navigation={this.props.navigation}/>
         <View style={styles.locationMenuStyle}>
-          <ShowLocationMenu />
+          <ShowLocationMenu/>
         </View>
       </View>
 
@@ -78,12 +78,12 @@ function mapStateToProps(state) {
 export default connect(mapStateToProps)(EventsListScreen);
 
 const styles = StyleSheet.create({
-  mainContainer:{
-    flex:1,
+  mainContainer: {
+    flex: 1,
   },
 
   locationMenuStyle: {
-    flex:1,
+    flex: 1,
     position: 'absolute',
     right: 10,
     bottom: 10,
