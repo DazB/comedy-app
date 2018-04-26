@@ -23,6 +23,18 @@ class LocationSearchScreen extends Component {
     }
   };
 
+  renderSeparator = () => {
+    return (
+      <View
+        style={{
+          height: 1,
+          width: '100%',
+          backgroundColor: "#CED0CE",
+        }}
+      />
+    );
+  };
+
   render() {
     // Go through list of saved locations and display names in list
     let listData = [];
@@ -30,30 +42,32 @@ class LocationSearchScreen extends Component {
     this.props.locations.forEach((location) => {
       listData.push(location);
     });
-
     return (
       <View style={styles.content}>
         <GooglePlacesInput navigation={this.props.navigation} dispatch={this.props.dispatch}
                            locations={this.props.locations}/>
-        <FlatList
-          data={listData}
-          renderItem={({item}) =>
-            <Text style={styles.listItem} onPress={() => {
-              this.props.dispatch({
-                type: 'SELECT_LOCATION',
-                placeName: item.placeName,
-                geoLocation: item.geoLocation
-              });
-              this.props.dispatch({type: 'INVALIDATE_EVENTS'});
-              this.props.dispatch(fetchEventsIfNeeded(item.geoLocation));
-              this.props.navigation.navigate('EventsList');
-            }}>
-              {item.placeName}
-            </Text>
-          }
-          // Key is place name (should be unique, right?)
-          keyExtractor={item => item.placeName}
-        />
+        <View style={styles.locationListStyle}>
+          <FlatList
+            data={listData}
+            renderItem={({item}) =>
+              <Text style={styles.savedLocationTextStyle} onPress={() => {
+                this.props.dispatch({
+                  type: 'SELECT_LOCATION',
+                  placeName: item.placeName,
+                  geoLocation: item.geoLocation
+                });
+                this.props.dispatch({type: 'INVALIDATE_EVENTS'});
+                this.props.dispatch(fetchEventsIfNeeded(item.geoLocation));
+                this.props.navigation.navigate('EventsList');
+              }}>
+                {item.placeName}
+              </Text>
+            }
+            // Key is place name (should be unique, right?)
+            keyExtractor={item => item.placeName}
+            ItemSeparatorComponent={this.renderSeparator}
+          />
+        </View>
       </View>
     )
   }
@@ -67,7 +81,7 @@ class GooglePlacesInput extends Component {
         minLength={2} // minimum length of text to search
         autoFocus={false}
         returnKeyType={'search'} // Search icon, https://facebook.github.io/react-native/docs/textinput.html#returnkeytype
-        listViewDisplayed='auto'    // true/false/undefined
+        listViewDisplayed='auto'   // true/false/undefined
         fetchDetails={true}
         renderDescription={row => row.description} // custom description render
         onPress={(data, details) => { // 'details' is provided when fetchDetails = true
@@ -117,8 +131,11 @@ class GooglePlacesInput extends Component {
         }}
 
         styles={{
+          container: {
+            flex:0,
+          },
           textInputContainer: {
-            width: '100%'
+            width: '100%',
           },
           description: {
             fontWeight: 'bold'
@@ -147,13 +164,16 @@ const styles = StyleSheet.create({
   content: {
     backgroundColor: '#ebeef0',
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center'
   },
 
-  listItem: {
-    padding: 10,
-    fontSize: 16,
+  locationListStyle: {
+    paddingTop: 10,
+  },
+
+  savedLocationTextStyle: {
+    fontSize: 15,
+    padding: 5,
+    color: '#000',
   },
 
 });
