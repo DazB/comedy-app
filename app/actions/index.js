@@ -29,6 +29,15 @@ export function selectLocation(placeName, geoLocation) {
   }
 }
 
+export const REMOVE_LOCATION = 'REMOVE_LOCATION';
+/* Remove Location action creator. Deletes selected location */
+export function removeLocation(placeName) {
+  return {
+    type: REMOVE_LOCATION,
+    placeName: placeName,
+  }
+}
+
 export const REQUEST_EVENTS = 'REQUEST_EVENTS';
 /* Request Events action creator */
 function requestEvents() {

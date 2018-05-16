@@ -52,7 +52,7 @@ public class EventsCollector {
                 .queryString("radius_distance", "10")
                 .queryString("distance_unit", "mi")
                 .queryString("genre", "comedy")
-                .queryString("date_from", "2018-04-30")
+                .queryString("date_from", java.time.LocalDate.now())
                 .queryString("date_to", "2018-06-25")
                 .queryString("results_per_page", "50")
                 .queryString("incl_artists", "1")

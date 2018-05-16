@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {View, StyleSheet, FlatList, Text} from 'react-native';
+import {View, StyleSheet, FlatList, Text, TouchableOpacity} from 'react-native';
 import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
 import HeaderButtons from 'react-navigation-header-buttons'
 import {NavigationActions} from 'react-navigation';
@@ -23,7 +23,7 @@ class LocationSearchScreen extends Component {
     }
   };
 
-  renderSeparator = () => {
+  _renderSeparator = () => {
     return (
       <View
         style={{
@@ -38,7 +38,7 @@ class LocationSearchScreen extends Component {
   render() {
     // Go through list of saved locations and display names in list
     let listData = [];
-    // Pushes every saved location object {placeName: "...", geoLocation: "..."} into list data.
+    // Pushes every saved location object {placeName: "...", geoLocation: "..."} into listData.
     this.props.locations.forEach((location) => {
       listData.push(location);
     });
@@ -46,11 +46,11 @@ class LocationSearchScreen extends Component {
       <View style={styles.content}>
         <GooglePlacesInput navigation={this.props.navigation} dispatch={this.props.dispatch}
                            locations={this.props.locations}/>
-        <View style={styles.locationListStyle}>
-          <FlatList
-            data={listData}
-            renderItem={({item}) =>
-              <Text style={styles.savedLocationTextStyle} onPress={() => {
+        <FlatList
+          data={listData}
+          renderItem={({item}) =>
+            <View style={{flex: 1, flexDirection: 'row'}}>
+              <Text style={styles.locationTextStyle} onPress={() => {
                 this.props.dispatch({
                   type: 'SELECT_LOCATION',
                   placeName: item.placeName,
@@ -62,12 +62,22 @@ class LocationSearchScreen extends Component {
               }}>
                 {item.placeName}
               </Text>
+              <TouchableOpacity onPress={() => {
+                this.props.dispatch({
+                  type: 'REMOVE_LOCATION',
+                  placeName: item.placeName,
+                });
+              }}>
+                <View style={styles.removeButtonStyle}>
+                    <Ionicons name={'md-close'} size={30} color={'red'}/>
+                </View>
+              </TouchableOpacity>
+            </View>
             }
-            // Key is place name (should be unique, right?)
-            keyExtractor={item => item.placeName}
-            ItemSeparatorComponent={this.renderSeparator}
-          />
-        </View>
+          // Key is place name (should be unique, right?)
+          keyExtractor={item => item.placeName}
+          ItemSeparatorComponent={this._renderSeparator}
+        />
       </View>
     )
   }
@@ -132,13 +142,15 @@ class GooglePlacesInput extends Component {
 
         styles={{
           container: {
-            flex:0,
+            flex: 0,
           },
           textInputContainer: {
             width: '100%',
           },
           description: {
-            fontWeight: 'bold'
+            fontSize: 15,
+            color: '#000',
+            // fontWeight: 'bold'
           },
           predefinedPlacesDescription: {
             color: '#1faadb'
@@ -166,14 +178,20 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 
-  locationListStyle: {
-    paddingTop: 10,
-  },
-
-  savedLocationTextStyle: {
+  locationTextStyle: {
+    flex: 1,
     fontSize: 15,
-    padding: 5,
+    padding: 13,
+    height: 44,
     color: '#000',
   },
+
+  removeButtonStyle: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 44,
+    height: 44,
+  }
 
 });

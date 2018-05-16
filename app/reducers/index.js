@@ -9,6 +9,7 @@ import {combineReducers} from 'redux'
 import {
   ADD_LOCATION,
   SELECT_LOCATION,
+  REMOVE_LOCATION,
   REQUEST_EVENTS,
   RECEIVE_EVENTS,
 } from '../actions/index'
@@ -32,6 +33,14 @@ function locationReducer(state = {locations: [], currentPlaceName: ""}, action) 
         ...state,
         currentPlaceName: action.placeName,
         currentGeoLocation: action.geoLocation,
+      };
+
+    // Removes selected location
+    case REMOVE_LOCATION:
+      const removedPlaceName = action.placeName;
+      return {
+        ...state,
+        locations: state.locations.filter(location => location.placeName !== removedPlaceName)
       };
     default:
       return state
@@ -61,7 +70,7 @@ function eventsReducer(state = { isFetching: false, events: [], eventsList: [] }
         eventsList: action.eventsList,
         error: action.error
       };
-    // Our current list of events is invalid
+    // Make current list of events invalid
     case INVALIDATE_EVENTS:
       return {
         ...state,

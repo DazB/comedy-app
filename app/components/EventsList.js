@@ -81,10 +81,11 @@ class EventsList extends Component {
           );
     }
 
+    console.log(this.props.eventsList);
     /* We have no error from the fetch, and we have data :D
     The list of events has already been parsed and formatted in the actions */
     return (
-      <View>
+      <View style={{flex: 1}}>
         <Text style={styles.titleStyle}> {this.props.currentPlaceName}</Text>
         <SectionList
           sections={this.props.eventsList}
@@ -95,7 +96,7 @@ class EventsList extends Component {
             return (<SectionListItem item={item} index={index} navigation={this.props.navigation}/>)
           }}
           keyExtractor={(item, index) => index}
-          stickySectionHeadersEnabled
+          // stickySectionHeadersEnabled
         />
       </View>
     );
