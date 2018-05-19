@@ -30,6 +30,19 @@ class EventsList extends Component {
     this.props.dispatch(fetchEventsIfNeeded(this.props.currentGeoLocation));
   }
 
+  // Line that separates items in list
+  _renderSeparator = () => {
+    return (
+      <View
+        style={{
+          height: 1,
+          width: '100%',
+          backgroundColor: "#CED0CE",
+        }}
+      />
+    );
+  };
+
   render() {
     // If fetch command still getting data, show loading shit (little spinny refresh circle)
     if (this.props.isFetching) {
@@ -96,6 +109,7 @@ class EventsList extends Component {
             return (<SectionListItem item={item} index={index} navigation={this.props.navigation}/>)
           }}
           keyExtractor={(item, index) => index}
+          ItemSeparatorComponent={this._renderSeparator}
           // stickySectionHeadersEnabled
         />
       </View>
