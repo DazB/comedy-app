@@ -17,7 +17,7 @@ public class Event {
     private String imageUrl;
 
     public Event(int id, String headline, List<String> lineup, String date, String venue, String ticketUrl, String imageUrl) {
-        this. id = id;
+        this.id = id;
         this.headline = headline;
         this.lineup = lineup;
         this.date = date;

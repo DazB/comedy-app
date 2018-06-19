@@ -94,7 +94,6 @@ class EventsList extends Component {
           );
     }
 
-    console.log(this.props.eventsList);
     /* We have no error from the fetch, and we have data :D
     The list of events has already been parsed and formatted in the actions */
     return (

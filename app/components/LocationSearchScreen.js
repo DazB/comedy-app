@@ -50,7 +50,7 @@ class LocationSearchScreen extends Component {
           data={listData}
           renderItem={({item}) =>
             <View style={{flex: 1, flexDirection: 'row'}}>
-              <Text style={styles.locationTextStyle} onPress={() => {
+              <Text style={styles.listItemTextStyle} numberOfLines={1} onPress={() => {
                 this.props.dispatch({
                   type: 'SELECT_LOCATION',
                   placeName: item.placeName,
@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 
-  locationTextStyle: {
+  listItemTextStyle: {
     flex: 1,
     fontSize: 15,
     padding: 13,

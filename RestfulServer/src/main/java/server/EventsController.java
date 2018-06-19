@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class EventsController {
 
-
     /**
      * Handles events requests.
      * @param location The geolocation query string. Defaults to York <3
@@ -22,8 +21,9 @@ public class EventsController {
      */
     @RequestMapping("/events")
     public Events sendEvents(@RequestParam(value="location", defaultValue="geo:53.9576300,-1.0827100") String location) throws UnirestException {
-
+        // Get dem events
         EventsCollector collector = new EventsCollector(location);
+        collector.getTicketmasterEvents();
 
         return new Events(collector.getEnts24Events());
     }
