@@ -16,15 +16,15 @@ public class EventsController {
     /**
      * Handles events requests.
      * @param location The geolocation query string. Defaults to York <3
-     * @return Events object (this will be written directly into JSON and sent as a response to HTTP requests)
+     * @return Events object. This will be written directly into JSON and sent as a response to HTTP requests
      * @throws UnirestException Throws exception on bad request to ticket website (I think...)
      */
     @RequestMapping("/events")
-    public Events sendEvents(@RequestParam(value="location", defaultValue="geo:53.9576300,-1.0827100") String location) throws UnirestException {
+    public Events sendEvents(@RequestParam(value="location", defaultValue="53.9576300,-1.0827100") String location) throws UnirestException {
         // Get dem events
         EventsCollector collector = new EventsCollector(location);
         collector.getTicketmasterEvents();
-
-        return new Events(collector.getEnts24Events());
+        return new Events(collector.getTicketmasterEvents());
+//        return new Events(collector.getEnts24Events());
     }
 }

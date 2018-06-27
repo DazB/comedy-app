@@ -28,7 +28,7 @@ public class EventsCollector {
 
     /**
      * Makes a request to Ents24 API, gets comedy events JSON, parses it, and returns the events
-     * @return
+     * @return List<Event> events. Empty if no events found or error fetching, else contains found events
      * @throws UnirestException Exception for bad request to website
      * @throws JSONException JSON parsing error (I blame whatever monkey documents these API's)
      */
@@ -63,7 +63,7 @@ public class EventsCollector {
                     .queryString("distance_unit", "mi")
                     .queryString("genre", "comedy")
                     .queryString("date_from", java.time.LocalDate.now())
-                    .queryString("date_to", "2018-06-25")
+                    .queryString("date_to", "2018-07-25")
                     .queryString("results_per_page", "50")
                     .queryString("incl_artists", "1")
                     .queryString("full_description", "1")
@@ -104,15 +104,30 @@ public class EventsCollector {
             // Get start date
             String date = comedyEvent.getString("startDate");
 
-            // Extract venue name TODO will be its own object
+            // Get venue details and save to Venue object
             JSONObject venueJSON = comedyEvent.getJSONObject("venue");
-            String venue = venueJSON.getString("name");
+            Double lat = venueJSON.getJSONObject("location").getDouble("lat");
+            Double lon = venueJSON.getJSONObject("location").getDouble("lon");
+            Event.Location venueLocation = new Event.Location(
+                    lat.toString(),
+                    lon.toString()
+            );
+            Event.Address venueAddress = new Event.Address(
+                    venueJSON.getJSONObject("address").getJSONArray("streetAddress").getString(0),
+                    venueJSON.getJSONObject("address").getString("postcode"),
+                    venueJSON.getJSONObject("address").getString("town")
+            );
+            Event.Venue venue = new Event.Venue(
+                    venueJSON.getString("name"),
+                    venueAddress,
+                    venueLocation
+            );
 
             // Get url to purchase tickets
             String ticketUrl = comedyEvent.getString("webLink");
 
             String imageUrl = "";
-            // Extract image url if it exists
+            // Get image url if it exists
             if (comedyEvent.has("image")) {
                 JSONObject image = comedyEvent.getJSONObject("image");
                 imageUrl = image.getString("url");
@@ -127,11 +142,11 @@ public class EventsCollector {
 
     /**
      * Make a request to Ticketmaster API for events
-     *
+     * @return List<Event> events. Empty if no events found or error fetching, else contains found events
      * @throws UnirestException Exception for bad request to website
      * @throws JSONException JSON parsing error (I blame whatever monkey documents these API's)
      */
-    public void getTicketmasterEvents() throws UnirestException, JSONException {
+    public List<Event> getTicketmasterEvents() throws UnirestException, JSONException {
         /* Ticketmaster Api key */
         String apikey = "xoGWGgRDOLHGsutqGIk0YLGaNXaYhsAA";
 
@@ -145,7 +160,7 @@ public class EventsCollector {
         String genreFilter = "{Comedy}";
         // Parse start and end date to get it in correct format TODO timezone shit?
         String startDate = LocalDate.now().atStartOfDay().toInstant(ZoneOffset.UTC).toString();
-        String endDate = LocalDate.parse("2018-06-25").atStartOfDay().toInstant(ZoneOffset.UTC).toString();
+        String endDate = LocalDate.parse("2018-07-25").atStartOfDay().toInstant(ZoneOffset.UTC).toString();
 
         HttpResponse<JsonNode> request;
         // Build HTTP auth request to get auth token to make events requests
@@ -163,19 +178,17 @@ public class EventsCollector {
         }
         catch (Exception e) {
             System.out.println("Exception occurred. Most likely bad request");
-            return;
-            //return events;
+            return events; // return an empty collection of events
         }
 
         // Check for null event response
         if (!request.getBody().getObject().has("_embedded")) {
-            return;
+            return events; // return an empty collection of events
         }
 
         // Check if any events were found
         if (!request.getBody().getObject().getJSONObject("_embedded").has("events")) {
-            return;
-            //return events;    // return an empty collection of events
+            return events;    // return an empty collection of events
         }
 
         // Get events list from JSON response
@@ -203,8 +216,22 @@ public class EventsCollector {
             // Get start date
             String date = comedyEvent.getJSONObject("dates").getJSONObject("start").getString("localDate");
 
-            // Extract venue name TODO will be its own object
-            String venue = comedyEvent.getJSONObject("_embedded").getJSONArray("venues").getJSONObject(0).getString("name");
+            // Get venue details and save to Venue object
+            JSONObject venueJSON = comedyEvent.getJSONObject("_embedded").getJSONArray("venues").getJSONObject(0);
+            Event.Location venueLocation = new Event.Location(
+                    venueJSON.getJSONObject("location").getString("latitude"),
+                    venueJSON.getJSONObject("location").getString("longitude")
+            );
+            Event.Address venueAddress = new Event.Address(
+                    venueJSON.getJSONObject("address").getString("line1"),
+                    venueJSON.getString("postalCode"),
+                    venueJSON.getJSONObject("city").getString("name")
+            );
+            Event.Venue venue = new Event.Venue(
+                    venueJSON.getString("name"),
+                    venueAddress,
+                    venueLocation
+            );
 
             // Get ticket url link
             String ticketUrl = comedyEvent.getString("url");
@@ -216,6 +243,6 @@ public class EventsCollector {
             Event event = new Event(i, headline, lineup, date, venue, ticketUrl, imageUrl);
             events.add(event);
         }
-
+        return events;
     }
 }
