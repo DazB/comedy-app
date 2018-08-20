@@ -7,12 +7,22 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import ch.hsr.geohash.GeoHash;
 
 import java.time.ZoneOffset;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.*;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
+import server.responses.Ents24AuthResponse;
+import server.responses.Ents24Response;
 
 /**
  * EventsCollector class
@@ -245,4 +255,47 @@ public class EventsCollector {
         }
         return events;
     }
+
+    public String entsTest() {
+        /* Ent24 Api keys and id */
+        String client_id = "91fdea0e6e8de74094ad0495f34ba081903e8bea";
+        String client_secret = "bfd40f1dcb565e9a0e206395c7ae7c6f108cd26a";
+        String username = "dazbahri@hotmail.co.uk";
+        String password = "ShitPissFuckCunt";
+
+        // Build HTTP request object, in this case the HTTP body containing our auth parameters.
+        MultiValueMap<String, String> requestBody = new LinkedMultiValueMap<String, String>();
+        requestBody.add("client_id", client_id);
+        requestBody.add("client_secret", client_secret);
+        requestBody.add("username", username);
+        requestBody.add("password", password);
+
+
+        // RestTemplate will use Jackson JSON (via a message converter) to convert the data into Ents24AuthResponse object
+        RestTemplate restTemplate = new RestTemplate();
+        Ents24AuthResponse authResponse = restTemplate.postForObject("https://api.ents24.com/auth/login", requestBody, Ents24AuthResponse.class);
+
+        //TODO: USE THIS NEW KNOWLEDGE TO REBUILD REQUEST SHIT
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", authResponse.getAccess_token());
+
+        HttpEntity entity = new HttpEntity(headers);
+
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl("https://api.ents24.com/event/list")
+                .queryParam("location", "geo:" + location) // Location query string parameter
+                .queryParam("radius_distance", "10")
+                .queryParam("distance_unit", "mi")
+                .queryParam("genre", "comedy")
+                .queryParam("date_from", java.time.LocalDate.now())
+                .queryParam("date_to", "2018-10-25")
+                .queryParam("results_per_page", "50")
+                .queryParam("incl_artists", "1")
+                .queryParam("full_description", "1");
+
+        ResponseEntity<List<Ents24Response>> response = restTemplate.exchange(builder.toUriString(), HttpMethod.GET, entity, new ParameterizedTypeReference<List<Ents24Response>>(){});
+        List<Ents24Response> responseBody = response.getBody();
+
+        return responseBody.toString();
+    }
+
 }
