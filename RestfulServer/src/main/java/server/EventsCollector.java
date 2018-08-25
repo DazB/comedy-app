@@ -17,18 +17,18 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import server.responses.Ents24AuthResponse;
 import server.responses.Ents24Response;
-
 /**
  * EventsCollector class
  * Will make requests to external ticket websites
  */
 public class EventsCollector {
+
+    private Keys keys;
 
     private String location;
 
@@ -37,111 +37,84 @@ public class EventsCollector {
     }
 
     /**
-     * Makes a request to Ents24 API, gets comedy events JSON, parses it, and returns the events
+     * Makes a request to the Ents24 API. The response is handled by RestTemplate, and the data is added to a list of
+     * Events.
+     *
      * @return List<Event> events. Empty if no events found or error fetching, else contains found events
-     * @throws UnirestException Exception for bad request to website
-     * @throws JSONException JSON parsing error (I blame whatever monkey documents these API's)
      */
-    public List<Event> getEnts24Events() throws UnirestException, JSONException {
-        /* Ent24 Api keys and id */
-        String client_id = "91fdea0e6e8de74094ad0495f34ba081903e8bea";
-        String client_secret = "bfd40f1dcb565e9a0e206395c7ae7c6f108cd26a";
-        String username = "dazbahri@hotmail.co.uk";
-        String password = "ShitPissFuckCunt";
+    public List<Event> getEnts24Events() {
 
         // List that stores all the events we extract from parsing JSON
         List<Event> events = new ArrayList<>();
 
-        HttpResponse<JsonNode> jsonResponse;
+        // Build HTTP request object, in this case the HTTP body containing our auth parameters.
+        MultiValueMap<String, String> requestBody = new LinkedMultiValueMap<String, String>();
+        requestBody.add("client_id", keys.entsClientId);
+        requestBody.add("client_secret", keys.entsClientSecret);
+        requestBody.add("username", keys.entsUsername);
+        requestBody.add("password", keys.entsPassword);
+
+        // RestTemplate will use Jackson JSON (via a message converter) to convert the data into Ents24AuthResponse object
+        RestTemplate restTemplate = new RestTemplate();
+        Ents24AuthResponse authResponse = restTemplate.postForObject("https://api.ents24.com/auth/login", requestBody, Ents24AuthResponse.class);
+
+        // Now we have the access token, we can make a request for data
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", authResponse.getAccess_token());
+
+        HttpEntity entity = new HttpEntity(headers);
+
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl("https://api.ents24.com/event/list")
+                .queryParam("location", "geo:" + location) // Location query string parameter
+                .queryParam("radius_distance", "10")
+                .queryParam("distance_unit", "mi")
+                .queryParam("genre", "comedy")
+                .queryParam("date_from", java.time.LocalDate.now())
+                .queryParam("date_to", "2018-10-25")
+                .queryParam("results_per_page", "50")
+                .queryParam("incl_artists", "1")
+                .queryParam("full_description", "1");
+
+        ResponseEntity<List<Ents24Response>> response;
         try {
-            // Build HTTP auth request to get auth token to make events requests
-            HttpResponse<JsonNode> authResponse = Unirest.post("https://api.ents24.com/auth/login")
-                    .field("client_id", client_id)
-                    .field("client_secret", client_secret)
-                    .field("username", username)
-                    .field("password", password)
-                    .asJson();
-
-            // Get auth token
-            String auth = authResponse.getBody().getObject().get("access_token").toString();
-
-            // Build HTTP events request
-            jsonResponse = Unirest.get("https://api.ents24.com/event/list")
-                    .header("Authorization", auth)
-                    .queryString("location", "geo:" + location) // Location query string parameter
-                    .queryString("radius_distance", "10")
-                    .queryString("distance_unit", "mi")
-                    .queryString("genre", "comedy")
-                    .queryString("date_from", java.time.LocalDate.now())
-                    .queryString("date_to", "2018-07-25")
-                    .queryString("results_per_page", "50")
-                    .queryString("incl_artists", "1")
-                    .queryString("full_description", "1")
-                    .asJson();
+            response = restTemplate.exchange(builder.toUriString(), HttpMethod.GET, entity, new ParameterizedTypeReference<List<Ents24Response>>() {
+            });
         }
-        // Exception handler. Return empty events collection
-        catch (Exception e) {
-            System.out.println("Exception occurred. Most likely bad request");
-            return events;
+        catch (RestClientException e) {
+            System.out.println("RestClientException: "+ e);
+            return events; // return an empty collection of events
         }
 
-        // Return empty events collection if there are no events
-        if (jsonResponse.getStatusText().equals("No Content")) {
-            return events;
-        }
+        // This will contain a list of Ents24Response objects containing data extracted by RestTemplate
+        List<Ents24Response> responseBody = response.getBody();
 
-        // Our response from events request
-        JSONArray eventsJsonArray = jsonResponse.getBody().getArray();
-
-        // Parse the events request json we got, extracting data we want
-        for (int i = 0; i < eventsJsonArray.length(); i++) {
-            // Get this events JSON
-            JSONObject comedyEvent = eventsJsonArray.getJSONObject(i);
-
-            // Get headline
-            String headline = comedyEvent.getString("headline");
-
-            // Check if lineup exists, then extract lineup from JSON
+        // Build an Event object to add to the list of Events, and start filling that bad boy up with data we've received
+        for (int i = 0; i < responseBody.size(); i++) {
+            // Headline
+            String headline = responseBody.get(i).getHeadline();
+            // Artist Lineup (can be null)
             List<String> lineup = new ArrayList<>();
-            if (comedyEvent.has("artists")) {
-                JSONArray artistsJSONArray = comedyEvent.getJSONArray("artists");
-                for (int j = 0; j < artistsJSONArray.length(); j++) {
-                    JSONObject artistJSON = artistsJSONArray.getJSONObject(j);
-                    lineup.add(artistJSON.getString("name"));
-                }
+            if (responseBody.get(i).getArtists() != null) {
+                responseBody.get(i).getArtists().forEach(artist -> lineup.add(artist.getName()));
             }
-
-            // Get start date
-            String date = comedyEvent.getString("startDate");
-
-            // Get venue details and save to Venue object
-            JSONObject venueJSON = comedyEvent.getJSONObject("venue");
-            Double lat = venueJSON.getJSONObject("location").getDouble("lat");
-            Double lon = venueJSON.getJSONObject("location").getDouble("lon");
-            Event.Location venueLocation = new Event.Location(
-                    lat.toString(),
-                    lon.toString()
-            );
-            Event.Address venueAddress = new Event.Address(
-                    venueJSON.getJSONObject("address").getJSONArray("streetAddress").getString(0),
-                    venueJSON.getJSONObject("address").getString("postcode"),
-                    venueJSON.getJSONObject("address").getString("town")
-            );
+            // Start date
+            String date =  responseBody.get(i).getStartDate();
+            // Venue details
             Event.Venue venue = new Event.Venue(
-                    venueJSON.getString("name"),
-                    venueAddress,
-                    venueLocation
+                    responseBody.get(i).getVenue().getName(),
+                    new Event.Address(responseBody.get(i).getVenue().getAddress().getStreetAddress().get(0), // TODO just gets first line off address?
+                            responseBody.get(i).getVenue().getAddress().getPostcode(),
+                            responseBody.get(i).getVenue().getAddress().getTown()),
+                    new Event.Location(responseBody.get(i).getVenue().getLocation().getLat(),
+                            responseBody.get(i).getVenue().getLocation().getLon())
             );
+            // Ticket url
+            String ticketUrl = responseBody.get(i).getWebLink();
+            // Image url (can be null)
+            String imageUrl = null;
+            if (responseBody.get(i).getImage() != null)
+                imageUrl = responseBody.get(i).getImage().getUrl();
 
-            // Get url to purchase tickets
-            String ticketUrl = comedyEvent.getString("webLink");
-
-            String imageUrl = "";
-            // Get image url if it exists
-            if (comedyEvent.has("image")) {
-                JSONObject image = comedyEvent.getJSONObject("image");
-                imageUrl = image.getString("url");
-            }
             // Build an event object and add it to our list of events
             Event event = new Event(i, headline, lineup, date, venue, ticketUrl, imageUrl);
             events.add(event);
@@ -157,8 +130,6 @@ public class EventsCollector {
      * @throws JSONException JSON parsing error (I blame whatever monkey documents these API's)
      */
     public List<Event> getTicketmasterEvents() throws UnirestException, JSONException {
-        /* Ticketmaster Api key */
-        String apikey = "xoGWGgRDOLHGsutqGIk0YLGaNXaYhsAA";
 
         // List that stores all the events we extract from parsing JSON
         List<Event> events = new ArrayList<>();
@@ -176,7 +147,7 @@ public class EventsCollector {
         // Build HTTP auth request to get auth token to make events requests
         try {
             request = Unirest.get("https://app.ticketmaster.com/discovery/v2/events")
-                    .queryString("apikey", apikey)
+                    .queryString("apikey", keys.ticketmasterApikey)
                     .queryString("geoPoint", locationGeoHash)
                     .queryString("radius", "10")
                     .queryString("unit", "miles")
@@ -256,46 +227,6 @@ public class EventsCollector {
         return events;
     }
 
-    public String entsTest() {
-        /* Ent24 Api keys and id */
-        String client_id = "91fdea0e6e8de74094ad0495f34ba081903e8bea";
-        String client_secret = "bfd40f1dcb565e9a0e206395c7ae7c6f108cd26a";
-        String username = "dazbahri@hotmail.co.uk";
-        String password = "ShitPissFuckCunt";
 
-        // Build HTTP request object, in this case the HTTP body containing our auth parameters.
-        MultiValueMap<String, String> requestBody = new LinkedMultiValueMap<String, String>();
-        requestBody.add("client_id", client_id);
-        requestBody.add("client_secret", client_secret);
-        requestBody.add("username", username);
-        requestBody.add("password", password);
-
-
-        // RestTemplate will use Jackson JSON (via a message converter) to convert the data into Ents24AuthResponse object
-        RestTemplate restTemplate = new RestTemplate();
-        Ents24AuthResponse authResponse = restTemplate.postForObject("https://api.ents24.com/auth/login", requestBody, Ents24AuthResponse.class);
-
-        //TODO: USE THIS NEW KNOWLEDGE TO REBUILD REQUEST SHIT
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", authResponse.getAccess_token());
-
-        HttpEntity entity = new HttpEntity(headers);
-
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl("https://api.ents24.com/event/list")
-                .queryParam("location", "geo:" + location) // Location query string parameter
-                .queryParam("radius_distance", "10")
-                .queryParam("distance_unit", "mi")
-                .queryParam("genre", "comedy")
-                .queryParam("date_from", java.time.LocalDate.now())
-                .queryParam("date_to", "2018-10-25")
-                .queryParam("results_per_page", "50")
-                .queryParam("incl_artists", "1")
-                .queryParam("full_description", "1");
-
-        ResponseEntity<List<Ents24Response>> response = restTemplate.exchange(builder.toUriString(), HttpMethod.GET, entity, new ParameterizedTypeReference<List<Ents24Response>>(){});
-        List<Ents24Response> responseBody = response.getBody();
-
-        return responseBody.toString();
-    }
 
 }

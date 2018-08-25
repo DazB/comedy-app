@@ -23,10 +23,9 @@ public class EventsController {
     public Events sendEvents(@RequestParam(value="location", defaultValue="53.9576300,-1.0827100") String location) throws UnirestException {
         // Get dem events
         EventsCollector collector = new EventsCollector(location);
-        collector.entsTest();
-        collector.getTicketmasterEvents();
         collector.getEnts24Events();
-//        return new Events(collector.getTicketmasterEvents());
-        return new Events(collector.getEnts24Events());
+        collector.getTicketmasterEvents();
+        return new Events(collector.getTicketmasterEvents());
+//        return new Events(collector.getEnts24Events());
     }
 }
