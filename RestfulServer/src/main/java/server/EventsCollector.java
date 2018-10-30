@@ -1,9 +1,21 @@
 package server;
 
+import ch.hsr.geohash.GeoHash;
+
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
+
+import java.security.cert.X509Certificate;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -12,6 +24,7 @@ import java.time.ZoneOffset;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.text.SimpleDateFormat;
 
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
@@ -22,18 +35,50 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import server.responses.Ents24AuthResponse;
 import server.responses.Ents24Response;
+
+
 /**
  * EventsCollector class
  * Will make requests to external ticket websites
  */
 public class EventsCollector {
 
-    private Keys keys;
+    private Keys keys = new Keys();
 
     private String location;
 
+
     public EventsCollector(String location) {
         this.location = location;
+
+        // God help me I don't know why this is needed. It didn't used to be needed.
+        // I think it just trusts all SSL certificates, allowing Unirest to work.
+        // https://github.com/Kong/unirest-java/issues/70
+        try {
+
+            TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
+                public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                    return null;
+                }
+
+                public void checkClientTrusted(X509Certificate[] certs, String authType) {
+                }
+
+                public void checkServerTrusted(X509Certificate[] certs, String authType) {
+                }
+
+            } };
+            SSLContext sslcontext = SSLContext.getInstance("SSL");
+            sslcontext.init(null, trustAllCerts, new java.security.SecureRandom());
+            HttpsURLConnection.setDefaultSSLSocketFactory(sslcontext.getSocketFactory());
+            SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(sslcontext);
+            CloseableHttpClient httpclient = HttpClients.custom().setSSLSocketFactory(sslsf).build();
+            Unirest.setHttpClient(httpclient);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     /**
@@ -70,7 +115,7 @@ public class EventsCollector {
                 .queryParam("distance_unit", "mi")
                 .queryParam("genre", "comedy")
                 .queryParam("date_from", java.time.LocalDate.now())
-                .queryParam("date_to", "2018-10-25")
+                .queryParam("date_to", "2018-12-25")
                 .queryParam("results_per_page", "50")
                 .queryParam("incl_artists", "1")
                 .queryParam("full_description", "1");
@@ -90,15 +135,45 @@ public class EventsCollector {
 
         // Build an Event object to add to the list of Events, and start filling that bad boy up with data we've received
         for (int i = 0; i < responseBody.size(); i++) {
-            // Headline
-            String headline = responseBody.get(i).getHeadline();
-            // Artist Lineup (can be null)
+            // Headline act
+            String headline;
+            if (responseBody.get(i).getHeadline() != null) {
+                headline = responseBody.get(i).getHeadline();
+            }
+            else headline = "";
+
+            // Title
+            String title;
+            if (responseBody.get(i).getTitle() != null) {
+                title = responseBody.get(i).getTitle();
+            }
+            else title = "";
+
+            // Artist Lineup (if empty, just use headline)
             List<String> lineup = new ArrayList<>();
             if (responseBody.get(i).getArtists() != null) {
                 responseBody.get(i).getArtists().forEach(artist -> lineup.add(artist.getName()));
             }
+            else lineup.add(headline);
+
             // Start date
-            String date =  responseBody.get(i).getStartDate();
+            String startDate =  responseBody.get(i).getStartDate();
+
+            // Start time in 12 hour format (i.e. AM/PM)
+            String startTime12 = responseBody.get(i).getStartTimeString();
+            String startTime24;
+            try {
+                // Convert to 24 hour time
+                SimpleDateFormat date12Format = new SimpleDateFormat("h:mma");
+                SimpleDateFormat date24Format = new SimpleDateFormat("HH:mm:ss");
+                // Start time in 24 hour format
+                startTime24 = date24Format.format(date12Format.parse(startTime12));
+            }
+            catch (Exception e) {
+                System.out.println("General Exception (I bet it's because startTime was null the cheeky bastards: " + e);
+                startTime24 = "";   // Make startTime24 empty (and not null because I like it when my code doesn't crash)
+            }
+
             // Venue details
             Event.Venue venue = new Event.Venue(
                     responseBody.get(i).getVenue().getName(),
@@ -109,14 +184,16 @@ public class EventsCollector {
                             responseBody.get(i).getVenue().getLocation().getLon())
             );
             // Ticket url
-            String ticketUrl = responseBody.get(i).getWebLink();
-            // Image url (can be null)
-            String imageUrl = null;
+            List<String> ticketUrl = new ArrayList<>();
+            ticketUrl.add(responseBody.get(i).getWebLink());
+
+            // Image url (can be empty)
+            String imageUrl = "";
             if (responseBody.get(i).getImage() != null)
                 imageUrl = responseBody.get(i).getImage().getUrl();
 
             // Build an event object and add it to our list of events
-            Event event = new Event(i, headline, lineup, date, venue, ticketUrl, imageUrl);
+            Event event = new Event(i, title, headline, lineup, startDate, startTime24, venue, ticketUrl, imageUrl);
             events.add(event);
         }
 
@@ -125,6 +202,7 @@ public class EventsCollector {
 
     /**
      * Make a request to Ticketmaster API for events
+     * TODO change to use RestTemplate like Ents24?
      * @return List<Event> events. Empty if no events found or error fetching, else contains found events
      * @throws UnirestException Exception for bad request to website
      * @throws JSONException JSON parsing error (I blame whatever monkey documents these API's)
@@ -135,13 +213,13 @@ public class EventsCollector {
         List<Event> events = new ArrayList<>();
 
         // Location in geohash form (cos TicketMaster wants to be a difficult bitch) TODO include actual location
-        //String locationGeoHash = GeoHash.geoHashStringWithCharacterPrecision(53.9576300,-1.0827100, 5);
-        String locationGeoHash = "u10j4"; // LANDAN g8whc u10j4
+        String locationGeoHash = GeoHash.geoHashStringWithCharacterPrecision(53.9576300,-1.0827100, 5);
+        //String locationGeoHash = "g8whc"; // LANDAN g8whc u10j4
         // Filter results to find only comedy
         String genreFilter = "{Comedy}";
-        // Parse start and end date to get it in correct format TODO timezone shit?
+        // Parse start and end date to get it in correct format TODO timezone shit? ZonedDateTime?
         String startDate = LocalDate.now().atStartOfDay().toInstant(ZoneOffset.UTC).toString();
-        String endDate = LocalDate.parse("2018-07-25").atStartOfDay().toInstant(ZoneOffset.UTC).toString();
+        String endDate = LocalDate.parse("2018-12-30").atStartOfDay().toInstant(ZoneOffset.UTC).toString();
 
         HttpResponse<JsonNode> request;
         // Build HTTP auth request to get auth token to make events requests
@@ -158,7 +236,7 @@ public class EventsCollector {
                     .asJson();
         }
         catch (Exception e) {
-            System.out.println("Exception occurred. Most likely bad request");
+            System.out.println("Exception occurred. Most likely bad request. Error: " + e);
             return events; // return an empty collection of events
         }
 
@@ -180,22 +258,31 @@ public class EventsCollector {
             // Get JSON for this event
             JSONObject comedyEvent = eventsJsonArray.getJSONObject(i);
 
-            // Get headline
-            String headline = comedyEvent.getString("name");
+            // Get title
+            String title = comedyEvent.getString("name");
 
-            // Get artists (can be null)
+            // Get headline and artists
+            String headline;
             List<String> lineup = new ArrayList<>();
             // Check if list of artists. If so, save a list of the lineup
             if (comedyEvent.getJSONObject("_embedded").has("attractions")) {
                 JSONArray artistsJSONArray = comedyEvent.getJSONObject("_embedded").getJSONArray("attractions");
+                headline = artistsJSONArray.getJSONObject(0).getString("name"); // Take first artist as the headliner
                 for (int j = 0; j < artistsJSONArray.length(); j++) {
                     JSONObject artistJSON = artistsJSONArray.getJSONObject(j);
                     lineup.add(artistJSON.getString("name"));
                 }
             }
+            else {
+                headline = title;
+                lineup.add(title);
+            }
 
-            // Get start date
+            // Get date
             String date = comedyEvent.getJSONObject("dates").getJSONObject("start").getString("localDate");
+
+            // Get time
+            String time = comedyEvent.getJSONObject("dates").getJSONObject("start").getString("localTime");
 
             // Get venue details and save to Venue object
             JSONObject venueJSON = comedyEvent.getJSONObject("_embedded").getJSONArray("venues").getJSONObject(0);
@@ -215,18 +302,17 @@ public class EventsCollector {
             );
 
             // Get ticket url link
-            String ticketUrl = comedyEvent.getString("url");
+            List<String> ticketUrl = new ArrayList<>();
+            ticketUrl.add(comedyEvent.getString("url"));
 
             // Get image url (there are many returned images. Just pick the first one) TODO way to choose a better one?
             String imageUrl = comedyEvent.getJSONArray("images").getJSONObject(0).getString("url");
 
             // Build an event object and add it to our list of events
-            Event event = new Event(i, headline, lineup, date, venue, ticketUrl, imageUrl);
+            Event event = new Event(i, title, headline, lineup, date, time, venue, ticketUrl, imageUrl);
             events.add(event);
         }
         return events;
     }
-
-
 
 }

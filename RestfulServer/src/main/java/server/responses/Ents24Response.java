@@ -16,15 +16,24 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Ents24Response {
 
-    private String headline;        // headline title of the event
-    private List<Artist> artists;   // list of artists performing (can be null)
+    private String title;           // title of the event
+    private String headline;        // headline act
+    private List<Artist> artists;   // list of artists performing
     private String startDate;       // start date of the event
+    private String startTimeString; // start time of event
     private Venue venue;            // venue details (name, address, location) of the event
     private String webLink;         // URL to ents24 web page selling the ticket
     private Image image;            // Image details (can be null?)
-    private String country;
 
     public Ents24Response() {
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getHeadline() {
@@ -49,6 +58,14 @@ public class Ents24Response {
 
     public void setStartDate(String startDate) {
         this.startDate = startDate;
+    }
+
+    public String getStartTimeString() {
+        return startTimeString;
+    }
+
+    public void setStartTimeString(String startTimeString) {
+        this.startTimeString = startTimeString;
     }
 
     public Venue getVenue() {

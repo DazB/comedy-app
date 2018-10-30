@@ -4,6 +4,7 @@
 
 package server;
 
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -11,13 +12,13 @@ import java.util.List;
  */
 public class Events {
 
-    private final List<Event> events;
+    private final HashMap<String, Event> events;
 
-    public Events(List<Event> events) {
+    public Events(HashMap<String, Event> events) {
         this.events = events;
     }
 
-    public List<Event> getEvents() {
+    public HashMap<String, Event> getEvents() {
         return events;
     }
 

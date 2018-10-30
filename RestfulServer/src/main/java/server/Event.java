@@ -8,18 +8,22 @@ import java.util.List;
 public class Event {
 
     private int id;
+    private String title;
     private String headline;
     private List<String> lineup; //Can be empty
     private String date;
+    private String time;
     private Venue venue;
-    private String ticketUrl;   //TODO can be many url's
+    private List<String> ticketUrl;
     private String imageUrl;
 
-    public Event(int id, String headline, List<String> lineup, String date, Venue venue, String ticketUrl, String imageUrl) {
+    public Event(int id, String title, String headline, List<String> lineup, String date, String time, Venue venue, List<String> ticketUrl, String imageUrl) {
         this.id = id;
+        this.title = title;
         this.headline = headline;
         this.lineup = lineup;
         this.date = date;
+        this.time = time;
         this.venue = venue;
         this.ticketUrl = ticketUrl;
         this.imageUrl = imageUrl;
@@ -27,6 +31,10 @@ public class Event {
 
     public int getId() {
         return id;
+    }
+
+    public String getTitle() {
+        return title;
     }
 
     public String getHeadline() {
@@ -41,16 +49,56 @@ public class Event {
         return date;
     }
 
+    public String getTime() {
+        return time;
+    }
+
     public Venue getVenue() {
         return venue;
     }
 
-    public String getTicketUrl() {
+    public List<String> getTicketUrl() {
         return ticketUrl;
     }
 
     public String getImageUrl() {
         return imageUrl;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setHeadline(String headline) {
+        this.headline = headline;
+    }
+
+    public void setLineup(List<String> lineup) {
+        this.lineup = lineup;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
+    }
+
+    public void setVenue(Venue venue) {
+        this.venue = venue;
+    }
+
+    public void setTicketUrl(List<String> ticketUrl) {
+        this.ticketUrl = ticketUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     /**
