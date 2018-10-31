@@ -4,21 +4,20 @@
 
 package server;
 
-import java.util.HashMap;
-import java.util.List;
+import java.util.Map;
 
 /**
  * Events class. List of many events
  */
 public class Events {
 
-    private final HashMap<String, Event> events;
+    private final Map<String, Event> events;
 
-    public Events(HashMap<String, Event> events) {
+    public Events(Map<String, Event> events) {
         this.events = events;
     }
 
-    public HashMap<String, Event> getEvents() {
+    public Map<String, Event> getEvents() {
         return events;
     }
 

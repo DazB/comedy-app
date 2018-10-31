@@ -5,8 +5,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
 import java.util.List;
+import java.util.TreeMap;
 
 /**
  * RESTful web service controller EventsController simply populates and returns an Events object.
@@ -35,9 +35,10 @@ public class EventsController {
     }
 
 
-    private HashMap<String, Event> mergeEvents(List<Event>... eventLists) {
-        // Our merged list of Events
-        HashMap<String, Event> mergedEventsList = new HashMap<String, Event>();
+    private TreeMap<String, Event> mergeEvents(List<Event>... eventLists) {
+        // Our merged list of Events. Use tree map so keys sorted (first part of key is date so sorted keys = events in
+        // chronological order. Ain't I smrt?
+        TreeMap<String, Event> mergedEventsList = new TreeMap<>();
 
         // Go through every events listing
         for (List<Event> events : eventLists) {
@@ -47,9 +48,10 @@ public class EventsController {
                 String key = event.getDate() + event.getVenue().getName() + event.getVenue().getAddress().getPostcode();
                 // If we haven't already added the event, then add it
                 if (!mergedEventsList.containsKey(key)) {
+                    event.setId(mergedEventsList.size());   // new unique identifier set when added to merged list
                     mergedEventsList.put(key, event);
                 }
-                // Ah, we've already added an event with the same venue and day.
+                // Ah, we've already added an event with the same key
                 else {
                     // Go through, compare each property, if one is missing or "better", replace it
                     Event savedEvent = mergedEventsList.get(key);
@@ -70,11 +72,8 @@ public class EventsController {
                     savedEvent.getTicketUrl().addAll(event.getTicketUrl());
 
                 }
-
             }
-
         }
-
         // Return our completed list of events.
         return mergedEventsList;
     }
