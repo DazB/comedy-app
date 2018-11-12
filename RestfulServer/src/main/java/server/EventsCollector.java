@@ -212,9 +212,12 @@ public class EventsCollector {
         // List that stores all the events we extract from parsing JSON
         List<Event> events = new ArrayList<>();
 
-        // Location in geohash form (cos TicketMaster wants to be a difficult bitch) TODO include actual location
-        String locationGeoHash = GeoHash.geoHashStringWithCharacterPrecision(53.9576300,-1.0827100, 5);
-        //String locationGeoHash = "g8whc"; // LANDAN g8whc u10j4
+        String[] latLongLocation = location.split(",");
+        // Location in geohash form (cos TicketMaster wants to be a difficult bitch)
+        String locationGeoHash = GeoHash.geoHashStringWithCharacterPrecision(Float.parseFloat(latLongLocation[0]),Float.parseFloat(latLongLocation[1]), 5);
+//      String locationGeoHash = GeoHash.geoHashStringWithCharacterPrecision(53.9576300,-1.0827100, 5);
+//      String locationGeoHash = "g8whc"; // LANDAN g8whc u10j4
+
         // Filter results to find only comedy
         String genreFilter = "{Comedy}";
         // Parse start and end date to get it in correct format TODO timezone shit? ZonedDateTime?

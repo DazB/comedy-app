@@ -3,6 +3,7 @@ import {TabNavigator, TabBarBottom, StackNavigator} from 'react-navigation';
 import HeaderButtons from 'react-navigation-header-buttons'
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
+import TabBarComponent from '../components/TabBarComponent.js'
 import EventsListScreen from '../components/EventsListScreen';
 import LocationSearchScreen from '../components/LocationSearchScreen';
 import EventDetailsScreen from '../components/EventDetailsScreen'
@@ -70,7 +71,7 @@ const BottomTabs = TabNavigator(
       activeTintColor: 'tomato',
       inactiveTintColor: 'gray',
     },
-    tabBarComponent: TabBarBottom,
+    tabBarComponent: TabBarComponent,
     tabBarPosition: 'bottom',
     animationEnabled: true,
     swipeEnabled: false,

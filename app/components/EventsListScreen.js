@@ -25,7 +25,7 @@ class EventsListScreen extends Component {
   render() {
     // Only show the location menu button if we're not fetching data or if there's not been an error fetching data
     const ShowLocationMenu = () => {
-      if (!this.props.isFetching && !this.props.error) {
+      if (!this.props.isFetching) { //&& !this.props.error TODO: put this back in the condition if want to hide if error
         return (
           <LocationMenu navigation={this.props.navigation}/>
         );

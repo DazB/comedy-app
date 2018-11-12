@@ -5,8 +5,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
+import org.apache.commons.text.similarity.JaroWinklerDistance;
 
 /**
  * RESTful web service controller EventsController simply populates and returns an Events object.
@@ -35,41 +37,69 @@ public class EventsController {
     }
 
 
-    private TreeMap<String, Event> mergeEvents(List<Event>... eventLists) {
+    private TreeMap<String, List<Event>> mergeEvents(List<Event>... eventLists) {
         // Our merged list of Events. Use tree map so keys sorted (first part of key is date so sorted keys = events in
         // chronological order. Ain't I smrt?
-        TreeMap<String, Event> mergedEventsList = new TreeMap<>();
+        TreeMap<String, List<Event>> mergedEventsList = new TreeMap<>();
 
         // Go through every events listing
         for (List<Event> events : eventLists) {
             // Go through every event stored in the listing
             for (Event event : events) {
-                // We use, as a key, the date, the venue name and the venue postcode (this is hopefully unique to each event)
-                String key = event.getDate() + event.getVenue().getName() + event.getVenue().getAddress().getPostcode();
+                // We use, as a key, the date, the venue postcode (formatted). This may not be unique so we have to do additional checks if matched
+                String key = event.getDate() + event.getVenue().getAddress().getPostcode().toLowerCase().replaceAll("\\s+","");
+                ArrayList<Event> eventList = new ArrayList<>(); // list to store events on this date
                 // If we haven't already added the event, then add it
                 if (!mergedEventsList.containsKey(key)) {
                     event.setId(mergedEventsList.size());   // new unique identifier set when added to merged list
-                    mergedEventsList.put(key, event);
+                    eventList.add(event);   // Add to list of events on this day
+                    mergedEventsList.put(key, eventList);   // add to merged list
                 }
-                // Ah, we've already added an event with the same key
+                // We've already added an event(s) at the same venue on same date. Make sure not duplicate.
                 else {
-                    // Go through, compare each property, if one is missing or "better", replace it
-                    Event savedEvent = mergedEventsList.get(key);
-                    if (savedEvent.getTitle().equals("") && !event.getTitle().equals("")) {
-                        savedEvent.setTitle(event.getTitle());
+                    eventList = new ArrayList<>(mergedEventsList.get(key)); // List of events on this day at this venue
+                    JaroWinklerDistance compare = new JaroWinklerDistance(); // Our fancy ass string comparator
+                    boolean sameEvent = false; // flag to store whether we found the same event
+                    int index = 0; // Gotta provide own counter cos iterators reasons blah blah blah
+                    // Go through every event on this date in this venue
+                    for (Event savedEvent : eventList) {
+                        // Using some fancy ass string comparator, we check if the 2 event's headlines or titles
+                        // are similar. If they are similar enough (above 0.8 match) it's the same event.
+                        // Merge them.
+                        // (FYI this wouldn't be a problem if people could fuckin spell names or maintain some consistency)
+                        if ((compare.apply(event.getHeadline().toLowerCase(), savedEvent.getHeadline().toLowerCase()) > 0.8) ||
+                                compare.apply(event.getTitle().toLowerCase(), savedEvent.getTitle().toLowerCase()) > 0.8) {
+                            sameEvent = true; // We found the same event
+                            // Go through, compare each property, if one is missing or "better", replace it
+                            if ((savedEvent.getTitle().equals("") && !event.getTitle().equals("")) ||
+                                    (savedEvent.getTitle().length() < event.getTitle().length())) {
+                                savedEvent.setTitle(event.getTitle());
+                            }
+                            if ((savedEvent.getHeadline().equals("") && !event.getHeadline().equals("")) ||
+                                    (savedEvent.getHeadline().length() < event.getHeadline().length())) {
+                                savedEvent.setTitle(event.getHeadline());
+                            }
+                            // If the new event has a larger size for the lineup, use the new one
+                            if (savedEvent.getLineup().size() < event.getLineup().size()) {
+                                savedEvent.setLineup(event.getLineup());
+                            }
+                            if (savedEvent.getTime().equals("") && !event.getTime().equals("")) {
+                                savedEvent.setTime(event.getTime());
+                            }
+                            // Add the new ticket url to the list of ticket url's
+                            savedEvent.getTicketUrl().addAll(event.getTicketUrl());
+                            eventList.set(index, savedEvent);
+                            break; // Exit loop
+                        }
+                        index++;
                     }
-                    if (savedEvent.getHeadline().equals("") && !event.getHeadline().equals("")) {
-                        savedEvent.setTitle(event.getHeadline());
+                    // Else it's a different event, but on the same date in the same venue. Add it to the list.
+                    if (!sameEvent) {
+                        eventList.add(event);
                     }
-                    // If the new event has a larger size for the lineup, use the new one
-                    if (savedEvent.getLineup().size() < event.getLineup().size()) {
-                        savedEvent.setLineup(event.getLineup());
-                    }
-                    if (savedEvent.getTime().equals("") && !event.getTime().equals("")) {
-                        savedEvent.setTime(event.getTime());
-                    }
-                    // Add the new ticket url to the list of ticket url's
-                    savedEvent.getTicketUrl().addAll(event.getTicketUrl());
+                    // Put the event list back into the merged list with the new event added for this date and venue
+                    mergedEventsList.put(key, eventList);
+
 
                 }
             }

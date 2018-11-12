@@ -76,7 +76,8 @@ function invalidateEvents() {
 function fetchEvents(geoLocation) {
   // localhost for android emulator
   let ipAddress = 'http://10.0.2.2:8080/'; // Server ip address. Other ip => 'http://10.0.1.17:5000/'
-  ipAddress += 'events?location=' + geoLocation.lat +',' + geoLocation.lng; // Append geo coordinate location to the end of our API call
+  ipAddress += 'events?location=' + "53.9576300" +',' + "-1.0827100"; // Append geo coordinate location to the end of our API call //TODO FUCK YOU GOOGLE YOU WON"T GET MY MONEY
+  //  ipAddress += 'events?location=' + geoLocation.lat +',' + geoLocation.lng; // Append geo coordinate location to the end of our API call
 
   // Thunk middleware passes the dispatch method as an argument to the function,
   // thus making it able to dispatch actions itself.
@@ -159,16 +160,16 @@ function parseJSON(json) {
     if (events.hasOwnProperty(event)) {
       // If nothings been added, add first event
       if (eventsList.length === 0) {
-        eventsList.push({title: events[event]["date"], data: [{id: events[event]["id"], headline: events[event]["headline"]}]})
+        eventsList.push({title: events[event]["date"], data: [{id: event, headline: events[event]["headline"]}]})
       }
       else {
         // Events added chronologically. If this date equals the last one added, add event to that date
         if (events[event]["date"] === eventsList[eventsList.length - 1]["title"]) {
-          eventsList[eventsList.length - 1]["data"].push({id: events[event]["id"], headline: events[event]["headline"]})
+          eventsList[eventsList.length - 1]["data"].push({id: event, headline: events[event]["headline"]})
         }
         // New date. Add it with an array containing the headline
         else
-          eventsList.push({title: events[event]["date"], data: [{id: events[event]["id"], headline: events[event]["headline"]}]})
+          eventsList.push({title: events[event]["date"], data: [{id: event, headline: events[event]["headline"]}]})
       }
     }
   }

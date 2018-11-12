@@ -19,10 +19,7 @@ class EventsDetailsScreen extends Component {
   render(){
     const { params } = this.props.navigation.state;  // Access the params passed from navigation
     let events = this.props.events["events"]; // Get all the events
-    // Find all the details for the event clicked on
-    let event = events.find(function(element) {
-      return element["id"] === params.id;
-    });
+    let event = events[params.id];  // Find all the details for the event clicked on
 
     return (
       <View>
