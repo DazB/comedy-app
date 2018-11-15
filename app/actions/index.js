@@ -153,23 +153,41 @@ function timeout(ms, promise) {
 function parseJSON(json) {
   if (json.length === 0) return []; // If we didn't get any data return an empty list
   let eventsList = []; // This will be returned and shown on screen
+  // Fetched json structured as so:
+  //   "events": [
+  //     "date" (basically events on this date): [
+  //         event 1 details,
+  //         event 2 details (if there is another event on this date)
+  //     ],
+  //     "date": [...]
+  //
   let events = json["events"]; // Grab array of every event
-  // Go through every event
-  for (let event in events) {
+  // Go through listing of every event
+  for (let id in events) {
     // Check to make sure we're iterating over right data
-    if (events.hasOwnProperty(event)) {
+    if (events.hasOwnProperty(id)) {
+      let event = events[id];
       // If nothings been added, add first event
       if (eventsList.length === 0) {
-        eventsList.push({title: events[event]["date"], data: [{id: event, headline: events[event]["headline"]}]})
+        eventsList.push({
+          title: event["date"],
+          data: [{id: event["id"], headline: event["headline"]}]
+        })
       }
       else {
         // Events added chronologically. If this date equals the last one added, add event to that date
-        if (events[event]["date"] === eventsList[eventsList.length - 1]["title"]) {
-          eventsList[eventsList.length - 1]["data"].push({id: event, headline: events[event]["headline"]})
+        if (event["date"] === eventsList[eventsList.length - 1]["title"]) {
+          eventsList[eventsList.length - 1]["data"].push({
+            id: event["id"],
+            headline: event["headline"]
+          })
         }
         // New date. Add it with an array containing the headline
         else
-          eventsList.push({title: events[event]["date"], data: [{id: event, headline: events[event]["headline"]}]})
+          eventsList.push({
+            title: event["date"],
+            data: [{id: event["id"], headline: event["headline"]}]
+          })
       }
     }
   }

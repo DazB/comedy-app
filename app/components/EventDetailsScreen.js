@@ -26,7 +26,7 @@ class EventsDetailsScreen extends Component {
         <Text style={styles.textStyle}>
           Headline: {event["headline"]}
           {"\n\n\n"}
-          Venue: {event["venue"]}
+          Venue: {event["venue"]["name"]}
 
         </Text>
         <Button

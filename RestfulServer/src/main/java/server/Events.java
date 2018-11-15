@@ -10,24 +10,21 @@ import java.util.Map;
 /**
  * Events class. List of many events. Structured like this:
  * {
- *     Date: {
- *         Events: {
- *             [Event],
- *             [Event]
- *         }
- *     }
- *
+ *     "Event ID": {
+ *         Event
+ *     },
+ *     .....
  * }
  */
 public class Events {
 
-    private final Map<String, List<Event>> events;
+    private final Map<Integer, Event> events;
 
-    public Events(Map<String, List<Event>> events) {
+    public Events(Map<Integer, Event> events) {
         this.events = events;
     }
 
-    public Map<String, List<Event>> getEvents() {
+    public Map<Integer, Event> getEvents() {
         return events;
     }
 

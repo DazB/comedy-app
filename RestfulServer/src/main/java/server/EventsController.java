@@ -5,9 +5,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.TreeMap;
+import java.util.*;
+
 import org.apache.commons.text.similarity.JaroWinklerDistance;
 
 /**
@@ -30,34 +29,33 @@ public class EventsController {
         EventsCollector collector = new EventsCollector(location);
         List<Event> a = collector.getEnts24Events();
         List<Event> b = collector.getTicketmasterEvents();
-        Events completeList = new Events(mergeEvents(a, b));
-        return completeList;
-        //return new Events(collector.getTicketmasterEvents());
-//        return new Events(collector.getEnts24Events());
+        Events combinedEvents = new Events(mergeEvents(a, b));
+        return combinedEvents;
     }
 
 
-    private TreeMap<String, List<Event>> mergeEvents(List<Event>... eventLists) {
-        // Our merged list of Events. Use tree map so keys sorted (first part of key is date so sorted keys = events in
+    private HashMap<Integer, Event> mergeEvents(List<Event>... eventLists) {
+        // Our merged list of Events. Use tree map so keys sorted. Key is date so sorted keys = events in
         // chronological order. Ain't I smrt?
-        TreeMap<String, List<Event>> mergedEventsList = new TreeMap<>();
+        TreeMap<String, List<Event>> chronologicalEventsList = new TreeMap<>();
 
         // Go through every events listing
         for (List<Event> events : eventLists) {
             // Go through every event stored in the listing
             for (Event event : events) {
-                // We use, as a key, the date, the venue postcode (formatted). This may not be unique so we have to do additional checks if matched
-                String key = event.getDate() + event.getVenue().getAddress().getPostcode().toLowerCase().replaceAll("\\s+","");
+                // We use, as a key, the date. Obvs not unique, will need to search all events on day to check for clash
+                // + event.getVenue().getAddress().getPostcode().toLowerCase().replaceAll("\\s+","");
+                String key = event.getDate();
                 ArrayList<Event> eventList = new ArrayList<>(); // list to store events on this date
                 // If we haven't already added the event, then add it
-                if (!mergedEventsList.containsKey(key)) {
-                    event.setId(mergedEventsList.size());   // new unique identifier set when added to merged list
+                if (!chronologicalEventsList.containsKey(key)) {
+                    event.setId(chronologicalEventsList.size());   // new unique identifier set when added to merged list
                     eventList.add(event);   // Add to list of events on this day
-                    mergedEventsList.put(key, eventList);   // add to merged list
+                    chronologicalEventsList.put(key, eventList);   // add to merged list
                 }
                 // We've already added an event(s) at the same venue on same date. Make sure not duplicate.
                 else {
-                    eventList = new ArrayList<>(mergedEventsList.get(key)); // List of events on this day at this venue
+                    eventList = new ArrayList<>(chronologicalEventsList.get(key)); // List of events on this day at this venue
                     JaroWinklerDistance compare = new JaroWinklerDistance(); // Our fancy ass string comparator
                     boolean sameEvent = false; // flag to store whether we found the same event
                     int index = 0; // Gotta provide own counter cos iterators reasons blah blah blah
@@ -98,14 +96,22 @@ public class EventsController {
                         eventList.add(event);
                     }
                     // Put the event list back into the merged list with the new event added for this date and venue
-                    mergedEventsList.put(key, eventList);
-
-
+                    chronologicalEventsList.put(key, eventList);
                 }
             }
         }
+
+        // Now that we have our chronological events map with the date as the key, we will now convert that to a map
+        // with the event id as the key. This makes it easier for the app to distinguish between events.
+        HashMap<Integer, Event> completeEventsList = new HashMap<>();
+        for (Map.Entry<String, List<Event>> eventsOnDate : chronologicalEventsList.entrySet()) {
+            for (Event event : eventsOnDate.getValue()) {
+                completeEventsList.put(event.getId(), event);
+            }
+        }
+
         // Return our completed list of events.
-        return mergedEventsList;
+        return completeEventsList;
     }
 
 
