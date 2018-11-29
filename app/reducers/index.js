@@ -19,7 +19,7 @@ import {INVALIDATE_EVENTS} from "../actions";
 * Location reducer
 * Change state of app based on user adding or removing locations
 */
-function locationReducer(state = {locations: [], currentPlaceName: ""}, action) {
+function locationReducer(state = {locations: [], currentPlaceName: "", currentGeoLocation: {lat: "", lng: ""}}, action) {
   switch (action.type) {
     // Add new location to list of location
     case ADD_LOCATION:

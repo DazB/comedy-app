@@ -4,11 +4,11 @@ import HeaderButtons from 'react-navigation-header-buttons'
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import TabBarComponent from '../components/TabBarComponent.js'
-import EventsListScreen from '../components/EventsListScreen';
-import LocationSearchScreen from '../components/LocationSearchScreen';
-import EventDetailsScreen from '../components/EventDetailsScreen'
-import LocationEventsScreen from "../components/LocationEventsScreen";
-import ArtistListScreen from "../components/ArtistListScreen";
+import EventsListScreen from '../screens/EventsListScreen';
+import LocationSearchScreen from '../screens/LocationSearchScreen';
+import EventDetailsScreen from '../screens/EventDetailsScreen'
+import LocationEventsScreen from "../screens/LocationEventsScreen";
+import ArtistListScreen from "../screens/ArtistListScreen";
 
 
 /* Navigation stack for Event Details. Clicking on an event to get more info about it */

@@ -7,6 +7,8 @@
 * Action creator are functions that create and return actions.
 */
 
+import {testEvents} from "./testEventData";
+
 const TIMEOUT = 5000; // timeout to fetch data in ms
 
 export const ADD_LOCATION = 'ADD_LOCATION';
@@ -76,8 +78,8 @@ function invalidateEvents() {
 function fetchEvents(geoLocation) {
   // localhost for android emulator
   let ipAddress = 'http://10.0.2.2:8080/'; // Server ip address. Other ip => 'http://10.0.1.17:5000/'
-  ipAddress += 'events?location=' + "53.9576300" +',' + "-1.0827100"; // Append geo coordinate location to the end of our API call //TODO FUCK YOU GOOGLE YOU WON"T GET MY MONEY
-  //  ipAddress += 'events?location=' + geoLocation.lat +',' + geoLocation.lng; // Append geo coordinate location to the end of our API call
+  //ipAddress += 'events?location=' + "53.9576300" +',' + "-1.0827100"; // Append geo coordinate location to the end of our API call //TODO FUCK YOU GOOGLE YOU WON"T GET MY MONEY
+  ipAddress += 'events?location=' + geoLocation.lat +',' + geoLocation.lng; // Append geo coordinate location to the end of our API call
 
   // Thunk middleware passes the dispatch method as an argument to the function,
   // thus making it able to dispatch actions itself.
@@ -88,12 +90,14 @@ function fetchEvents(geoLocation) {
     // The function called by the thunk middleware can return a value,
     // that is passed on as the return value of the dispatch method.
 
-    return timeout(TIMEOUT, fetch(ipAddress))
-      .then(response => response.json())
-      /* On success the update the app state with the results of the API call and say no errors */
-      .then(json => dispatch(receiveEvents(json, false)))
-      // On a timeout return an undefined list of events and say there's been an error
-      .catch(error => dispatch(receiveEvents([], true)))
+    return dispatch(receiveEvents(JSON.parse(testEvents), false)) // test events
+    //TODO: UNCOMMENT BELOW FOR ACTUAL WORKING CODE. RIGHT NOW JUST USING TEST DATA
+    // return timeout(TIMEOUT, fetch(ipAddress))
+    //   .then(response => response.json())
+    //   /* On success the update the app state with the results of the API call and say no errors */
+    //   .then(json => dispatch(receiveEvents(json, false)))
+    //   // On a timeout return an undefined list of events and say there's been an error
+    //   .catch(error => dispatch(receiveEvents([], true)))
   }
 }
 
@@ -155,11 +159,10 @@ function parseJSON(json) {
   let eventsList = []; // This will be returned and shown on screen
   // Fetched json structured as so:
   //   "events": [
-  //     "date" (basically events on this date): [
-  //         event 1 details,
-  //         event 2 details (if there is another event on this date)
-  //     ],
-  //     "date": [...]
+  //     id (unique id for every event): {
+  //         event details,
+  //     },
+  //     id : {...}
   //
   let events = json["events"]; // Grab array of every event
   // Go through listing of every event

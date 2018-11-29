@@ -3,7 +3,7 @@ import {
   View
 } from 'react-native';
 
-import EventsList from './EventsList';
+import EventsList from '../components/EventsList';
 import Ionicons from "react-native-vector-icons/Ionicons";
 import HeaderButtons from 'react-navigation-header-buttons';
 

@@ -6,7 +6,7 @@ import {NavigationActions} from 'react-navigation';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import {connect} from 'react-redux'
-import {fetchEventsIfNeeded} from "../actions";
+import {fetchEventsIfNeeded} from "../actions/index";
 
 class LocationSearchScreen extends Component {
 
